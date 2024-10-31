@@ -1,8 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dh7elcep04tt2"]
 
 [ext_resource type="Script" path="res://Player.cs" id="1_1sbp3"]
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_myfdv"]
+[ext_resource type="ArrayMesh" uid="uid://cinjtfq2bg2kn" path="res://Player/among us.obj" id="2_umn76"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_oioec"]
 
@@ -15,7 +14,7 @@ _groundCast = NodePath("GroundCast")
 _thrust = 10.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("CapsuleMesh_myfdv")
+mesh = ExtResource("2_umn76")
 
 [node name="CameraPivot" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.678147, 0)
@@ -31,3 +30,7 @@ shape = SubResource("CylinderShape3D_oioec")
 
 [node name="GroundCast" type="RayCast3D" parent="."]
 target_position = Vector3(0, -1.4, 0)
+
+[node name="RayCast3D" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+target_position = Vector3(0, -10, 0)

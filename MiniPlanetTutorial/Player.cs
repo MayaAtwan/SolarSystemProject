@@ -6,29 +6,35 @@ public partial class Player : RigidBody3D
 	[ExportCategory("Nodes")]
 	[Export] private Camera3D _camera;
 	[Export] private Node3D _cameraPivot;
-	[Export] private RayCast3D _groundCast;
-
-	public bool IsGrounded => _groundCast.IsColliding();
-	private Planet _ground => _groundCast.GetCollider() as Planet;
-	private Vector3 _closestForce;
-
-	private Vector3 _surfacePosition;
-	private bool _isStuckToSurface;
 
 	[ExportCategory("Settings")]
-	[Export] private float _mouseSensitivity = 0.3f;
+	[Export] private float _mouseSensitivity = 0.01f;
 	private Vector2 _mouseDelta;
 	private float _cameraXRotation;
 
 	[Export] private float _thrust = 1f;
-	[Export] private float _autoOrientSpeed = 0.5f;
-	[Export] private float _jumpImpulse = 5f;
+	[Export] private float _rotationSpeed = 1f;
 
+	private bool _isInsideSpaceship = true; // Starts inside the spaceship
+	private Node3D _spaceship; // Reference to the spaceship
 	private bool _inMap;
 
 	public override void _Ready()
 	{
+		GD.Print("Player Ready");
 		base._Ready();
+
+		// Find the spaceship node. Make sure the name matches your node's name in the scene
+_spaceship = GetNode<Node3D>("/root/SolarSystem/Sketchfab_Scene");
+
+		if (_spaceship == null)
+		{
+			GD.PrintErr("Spaceship node not found. Check if 'Sketchfab_Scene' exists.");
+		}
+		else
+		{
+			GD.Print("Spaceship found: " + _spaceship.Name);
+		}
 
 		ShowMap(false);
 	}
@@ -41,40 +47,58 @@ public partial class Player : RigidBody3D
 		{
 			ShowMap(!_inMap);
 		}
+
+		if (_isInsideSpaceship)
+		{
+			ProcessSpaceshipMovement(delta); // Move spaceship if inside
+		}
+		else
+		{
+			ProcessMovementInputs(delta); // Move player if outside
+		}
 	}
 
 	public override void _PhysicsProcess(double delta)
 	{
-		var closestForceMagnitude = 0f;
-		_closestForce = Vector3.Zero;
-		foreach (var planet in SolarSystem.Instance.Planets)
-		{
-			var force = planet.GetAccelerationAtPosition(GlobalPosition) * this.Mass;
-			ApplyCentralForce(force);
-
-			// If we're close to a planet we track which one is pulling on us the most to orient our feet towards it
-			if (planet.GlobalPosition.DistanceTo(GlobalPosition) < 2f * planet.surfaceRadius)
-			{
-				var magnitude = force.Length();
-				if (magnitude > closestForceMagnitude) 
-				{
-					_closestForce = force;
-					closestForceMagnitude = magnitude;
-				}
-			}
-		}
-
-		if (!_inMap)
-		{
-			ProcessMovementInputs(delta);
-			ProcessLookInputs(delta);
-		}
-
-		ProcessAutoOrientation(delta);
-
-		_mouseDelta = Vector2.Zero;
+		base._PhysicsProcess(delta);
+		ProcessLookInputs(delta); // Rotate camera for both spaceship and player
 	}
 
+	// Handles movement while the player is inside the spaceship
+	private void ProcessSpaceshipMovement(double delta)
+	{
+		if (_spaceship == null) return; // Prevents null reference errors
+
+		var movement = Vector3.Zero;
+
+		var forward = -_spaceship.GlobalTransform.Basis.Z;
+		var left = -_spaceship.GlobalTransform.Basis.X;
+		var up = _spaceship.GlobalTransform.Basis.Y;
+
+		// Handle spaceship movement
+		if (Input.IsActionPressed("Forward")) movement += forward;
+		if (Input.IsActionPressed("Backward")) movement -= forward;
+		if (Input.IsActionPressed("Left")) movement += left;
+		if (Input.IsActionPressed("Right")) movement -= left;
+		if (Input.IsActionPressed("Up")) movement += up;
+		if (Input.IsActionPressed("Down")) movement -= up;
+
+		// Move the spaceship
+		_spaceship.GlobalPosition += movement * _thrust * (float)delta;
+
+		// Allow rotation of the spaceship with the mouse
+		var deltaX = _mouseDelta.Y * _rotationSpeed * (float)delta;
+		var deltaY = -_mouseDelta.X * _rotationSpeed * (float)delta;
+		_spaceship.RotateObjectLocal(Vector3.Up, Mathf.DegToRad(deltaY));
+
+		// Allow exiting the spaceship by pressing 'ui_accept'
+		if (Input.IsActionJustPressed("ui_accept")) // Assuming 'ui_accept' is mapped to the Enter or left-click key
+		{
+			ExitSpaceship();
+		}
+	}
+
+	// Handles movement when the player is outside the spaceship
 	private void ProcessMovementInputs(double delta)
 	{
 		var movement = Vector3.Zero;
@@ -83,6 +107,7 @@ public partial class Player : RigidBody3D
 		var left = -GlobalTransform.Basis.X;
 		var up = GlobalTransform.Basis.Y;
 
+		// Allow free player movement
 		if (Input.IsActionPressed("Forward")) movement += forward;
 		if (Input.IsActionPressed("Backward")) movement -= forward;
 		if (Input.IsActionPressed("Left")) movement += left;
@@ -90,110 +115,54 @@ public partial class Player : RigidBody3D
 		if (Input.IsActionPressed("Up")) movement += up;
 		if (Input.IsActionPressed("Down")) movement -= up;
 
-		// With all the physics calculations going on, the player can sometimes start drifting when standing still on the surface of a planet
-		// If they aren't trying to move and aren't sliding on the ground, we'll fix them in place
-		var shouldStickToSurface = movement == Vector3.Zero && _ground != null && _ground.GetRelativeVelocityToSurface(GlobalPosition, LinearVelocity).Length() < 0.2f;
-
-		if (shouldStickToSurface)
-		{
-			if (_isStuckToSurface)
-			{
-				// Keep the player at the current local position
-				GlobalPosition = _ground.ToGlobal(_surfacePosition);
-			}
-			else
-			{
-				// Record the current local position to stick to it
-				_surfacePosition = _ground.ToLocal(GlobalPosition);
-				_isStuckToSurface = true;
-			}
-		}
-		else
-		{
-			_isStuckToSurface = false;
-		}
-
-		if (movement != Vector3.Zero)
-		{
-			ApplyCentralForce(_thrust * movement.Normalized());
-		}
-
-		if (IsGrounded && Input.IsActionJustReleased("Jump"))
-		{
-			ApplyCentralImpulse(_jumpImpulse * up);
-		}
+		ApplyCentralForce(_thrust * movement.Normalized());
 	}
 
+	// Handles camera look and rotation
 	private void ProcessLookInputs(double delta)
 	{
-		// Look - mouse y is the rotation around the x axis and vice versa
-		var deltaX = _mouseDelta.Y * _mouseSensitivity;
-		var deltaY = -_mouseDelta.X * _mouseSensitivity;
+		var deltaX = _mouseDelta.Y * _mouseSensitivity * (float)delta;
+		var deltaY = -_mouseDelta.X * _mouseSensitivity * (float)delta;
 
-		if (Input.IsActionPressed("Rotate"))
+		// Rotate the object (player or spaceship) on the horizontal axis (yaw)
+		RotateObjectLocal(Vector3.Up, Mathf.DegToRad(deltaY));
+
+		// Clamp vertical rotation (pitch)
+		if (_cameraXRotation + deltaX > -90 && _cameraXRotation + deltaX < 90)
 		{
-			Rotate(_cameraPivot.GlobalTransform.Basis.Z, Mathf.DegToRad(deltaY));
+			_cameraPivot.RotateX(Mathf.DegToRad(-deltaX));
+			_cameraXRotation += deltaX;
 		}
-		else
-		{
-			RotateObjectLocal(Vector3.Up, Mathf.DegToRad(deltaY));
-			if (_cameraXRotation + deltaX > -90 && _cameraXRotation + deltaX < 90)
-			{
-				_cameraPivot.RotateX(Mathf.DegToRad(-deltaX));
-				_cameraXRotation += deltaX;
-			}
-		}
+
+		_mouseDelta = Vector2.Zero;
 	}
 
-	private void ProcessAutoOrientation(double delta)
+	// Called when the player exits the spaceship
+	private void ExitSpaceship()
 	{
-		AngularVelocity = Vector3.Zero;
-		AngularDamp = 10;
+		_isInsideSpaceship = false;
 
-		var inZeroG = _closestForce == Vector3.Zero;
+		// Detach player from the spaceship
+		GetParent().RemoveChild(this);
+		GetTree().Root.AddChild(this);
 
-		if (inZeroG)
-		{
-			// Couldn't apply auto orientation - We are in zero G
-			var dx = Mathf.Lerp(0, -_cameraXRotation, _autoOrientSpeed * (float)delta);
-			_cameraXRotation += dx;
-
-			_cameraPivot.RotateX(Mathf.DegToRad(-dx));
-			Rotate(_cameraPivot.GlobalTransform.Basis.X, Mathf.DegToRad(dx));
-		}
-		else
-		{
-			var upDirection = -_closestForce.Normalized();
-			var orientationDirection = new Quaternion(GlobalTransform.Basis.Y, upDirection) * GlobalTransform.Basis.GetRotationQuaternion();
-
-			if (IsGrounded)
-			{
-				AngularVelocity = _ground.ConstantAngularVelocity.Project(upDirection);
-				AngularDamp = 0;
-
-				GlobalRotation = orientationDirection.Normalized().GetEuler();
-			}
-			else
-			{
-				var rotation = GlobalTransform.Basis.GetRotationQuaternion().Slerp(orientationDirection.Normalized(), _autoOrientSpeed * (float)delta);
-
-				GlobalRotation = rotation.GetEuler();
-			}
-		}
+		// Place player just outside the spaceship
+		GlobalPosition = _spaceship.GlobalTransform.Origin + _spaceship.GlobalTransform.Basis.Z * 5f; // Adjust position as needed
+		GD.Print("Player has exited the spaceship");
 	}
 
 	public override void _Input(InputEvent e)
 	{
 		base._Input(e);
 
-		if (e is InputEventMouseMotion)
+		// Capture mouse movement for rotation
+		if (e is InputEventMouseMotion mouseMotion)
 		{
-			// Add up mouse motions in the input method and then apply them in physics process
-			var mouseMotion = e as InputEventMouseMotion;
 			_mouseDelta += mouseMotion.Relative;
 		}
 	}
 
+	// Toggles the map view mode
 	private void ShowMap(bool inMap)
 	{
 		_inMap = inMap;

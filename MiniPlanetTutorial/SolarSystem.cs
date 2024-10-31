@@ -10,13 +10,13 @@ public partial class SolarSystem : Node3D
 	public override void _Ready()
 	{
 		Instance = this;
-
+		GD.Print("SolarSystem.Instance set");
 		Planets = this.GetChildren().Where(x => x is Planet).Cast<Planet>().ToArray();
 
 		var orderedPlanets = Planets.OrderBy(planet => planet.HowManyParents());
 		foreach (var planet in orderedPlanets)
 		{
 			planet.Init();
-		}
+		} 
 	}
 }
