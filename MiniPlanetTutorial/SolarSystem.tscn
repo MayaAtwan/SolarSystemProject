@@ -1,20 +1,29 @@
-[gd_scene load_steps=19 format=3 uid="uid://bxjkkgh0jfjm"]
+[gd_scene load_steps=22 format=3 uid="uid://bxjkkgh0jfjm"]
 
+[ext_resource type="Texture2D" uid="uid://c55vl85vj1ke" path="res://2k_earth_daymap.jpg" id="1_yaws2"]
+[ext_resource type="PackedScene" uid="uid://cwr0sqhdhsoxg" path="res://spaceship.tscn" id="4_nenlh"]
 [ext_resource type="Texture2D" uid="uid://blkyamearklx8" path="res://mars_texturemap.png" id="4_r6b8d"]
-[ext_resource type="PackedScene" uid="uid://c8wfo70juhscb" path="res://spaceship/space_ship_diorama_1.glb" id="4_tuhbm"]
 [ext_resource type="Texture2D" uid="uid://bsdne7saqa4y7" path="res://ESO_-_Milky_Way.jpg" id="5_rwgkv"]
+[ext_resource type="Script" path="res://managers/music_controller.gd" id="6_kisol"]
 [ext_resource type="PackedScene" uid="uid://dh7elcep04tt2" path="res://Player.tscn" id="6_wutj3"]
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_o3kyp"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l07o7"]
+albedo_texture = ExtResource("1_yaws2")
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_qoxnf"]
 load_path = "res://.godot/imported/earth_texturemap.png-44547dae1d3f4c0d309b13b6a5240d82.s3tc.ctex"
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_540b3"]
-albedo_texture = SubResource("CompressedTexture2D_o3kyp")
+disable_ambient_light = true
+albedo_texture = SubResource("CompressedTexture2D_qoxnf")
 
 [sub_resource type="SphereMesh" id="SphereMesh_v6gf0"]
 material = SubResource("StandardMaterial3D_540b3")
 radius = 20.0
 height = 40.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fgtnl"]
+albedo_color = Color(0.101961, 0.819608, 0.270588, 1)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_btiol"]
 radius = 12.7055
@@ -56,14 +65,14 @@ ambient_light_source = 2
 ambient_light_color = Color(1, 1, 1, 1)
 ambient_light_energy = 0.01
 
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_l6gxg"]
-
 [node name="SolarSystem" type="Node3D"]
 
 [node name="Earth" type="StaticBody3D" parent="."]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Earth"]
+material_override = SubResource("StandardMaterial3D_l07o7")
 mesh = SubResource("SphereMesh_v6gf0")
+surface_material_override/0 = SubResource("StandardMaterial3D_fgtnl")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Earth"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -138.999, -107.857, 143.077)
@@ -107,14 +116,15 @@ shape = SubResource("SphereShape3D_hrc11")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_ocf52")
 
-[node name="Sketchfab_Scene" parent="." instance=ExtResource("4_tuhbm")]
-transform = Transform3D(0.991631, 0, 0.129107, 0, 1, 0, -0.129107, 0, 0.991631, -23.3147, 68.3451, 73.5755)
+[node name="Spaceship" parent="." instance=ExtResource("4_nenlh")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 100, -50)
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Sketchfab_Scene"]
+[node name="Camera3D" type="Camera3D" parent="Spaceship"]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Sketchfab_Scene/StaticBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.442032, -1.68762, 0.809105)
-shape = SubResource("ConcavePolygonShape3D_l6gxg")
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Spaceship"]
 
-[node name="Player" parent="Sketchfab_Scene" instance=ExtResource("6_wutj3")]
-transform = Transform3D(0.991631, 0, -0.129107, 0, 1, 0, 0.129107, 0, 0.991631, 32.4099, -68.2413, -69.9294)
+[node name="Player" parent="Spaceship" instance=ExtResource("6_wutj3")]
+transform = Transform3D(0.0333333, 0, 3.52774e-10, 0, 0.0333333, 0, -3.52774e-10, 0, 0.0333333, -0.0695216, -4.55107, -7.45659)
+
+[node name="MusicController" type="AudioStreamPlayer" parent="."]
+script = ExtResource("6_kisol")

@@ -23,9 +23,8 @@ public partial class Player : RigidBody3D
 	{
 		GD.Print("Player Ready");
 		base._Ready();
-
-		// Find the spaceship node. Make sure the name matches your node's name in the scene
-_spaceship = GetNode<Node3D>("/root/SolarSystem/Sketchfab_Scene");
+		
+		_spaceship = GetNode<Node3D>("/root/SolarSystem/Spaceship");
 
 		if (_spaceship == null)
 		{
@@ -34,20 +33,18 @@ _spaceship = GetNode<Node3D>("/root/SolarSystem/Sketchfab_Scene");
 		else
 		{
 			GD.Print("Spaceship found: " + _spaceship.Name);
+			GlobalPosition = _spaceship.GlobalTransform.Origin;
 		}
-
 		ShowMap(false);
 	}
 
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
-
 		if (Input.IsActionJustReleased("Map"))
 		{
 			ShowMap(!_inMap);
 		}
-
 		if (_isInsideSpaceship)
 		{
 			ProcessSpaceshipMovement(delta); // Move spaceship if inside
@@ -143,8 +140,8 @@ _spaceship = GetNode<Node3D>("/root/SolarSystem/Sketchfab_Scene");
 		_isInsideSpaceship = false;
 
 		// Detach player from the spaceship
-		GetParent().RemoveChild(this);
-		GetTree().Root.AddChild(this);
+		// GetParent().RemoveChild(this);
+		//GetTree().Root.AddChild(this);
 
 		// Place player just outside the spaceship
 		GlobalPosition = _spaceship.GlobalTransform.Origin + _spaceship.GlobalTransform.Basis.Z * 5f; // Adjust position as needed

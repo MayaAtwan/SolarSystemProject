@@ -1,3 +1,9 @@
-[gd_scene format=3 uid="uid://cwr0sqhdhsoxg"]
+[gd_scene load_steps=2 format=3 uid="uid://cwr0sqhdhsoxg"]
+
+[ext_resource type="PackedScene" uid="uid://c8wfo70juhscb" path="res://spaceship/space_ship_diorama_1.glb" id="1_wtd31"]
 
 [node name="Spaceship" type="Node3D"]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_wtd31")]
+transform = Transform3D(-1.09931, 0, 2.79133, 0, 3, 0, -2.79133, 0, -1.09931, 0.52334, 0, -0.195097)
