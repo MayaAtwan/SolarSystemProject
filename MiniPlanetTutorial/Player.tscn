@@ -14,7 +14,7 @@ _cameraPivot = NodePath("CameraPivot")
 _thrust = 10.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 18.4675, -53.4914, 23.2099)
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
 mesh = ExtResource("2_umn76")
 
 [node name="CameraPivot" type="Node3D" parent="."]
