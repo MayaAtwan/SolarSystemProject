@@ -1,5 +1,27 @@
-[gd_scene format=3 uid="uid://cwr0sqhdhsoxg"]
+[gd_scene load_steps=5 format=3 uid="uid://bdxfo5j4g1ifv"]
 
-[node name="Spaceship" type="Node3D"]
-transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
-visible = false
+[ext_resource type="Script" path="res://SpaceShip.cs" id="1_07l6j"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r65tr"]
+albedo_color = Color(1, 0, 0.984314, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_k1dkr"]
+material = SubResource("StandardMaterial3D_r65tr")
+radius = 5.0
+height = 30.0
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_sf68e"]
+
+[node name="SpaceShip" type="RigidBody3D"]
+transform = Transform3D(20, 0, 0, 0, 20, 0, 0, 0, 20, 0, 0, 0)
+script = ExtResource("1_07l6j")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_k1dkr")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_sf68e")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -0.05, -0.6, 0.4)

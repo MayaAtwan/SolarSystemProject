@@ -15,10 +15,6 @@ run/main_scene="res://SolarSystem.tscn"
 config/features=PackedStringArray("4.3", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
-[autoload]
-
-SolarSystem="*res://SolarSystem.tscn"
-
 [display]
 
 window/size/viewport_width=1920
@@ -33,10 +29,6 @@ project/assembly_name="MiniPlanetTutorial"
 [editor]
 
 naming/scene_name_casing=1
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/vr/plugin.cfg")
 
 [input]
 

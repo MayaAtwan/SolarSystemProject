@@ -1,12 +1,12 @@
-[gd_scene load_steps=23 format=3 uid="uid://bxjkkgh0jfjm"]
+[gd_scene load_steps=24 format=3 uid="uid://bxjkkgh0jfjm"]
 
+[ext_resource type="Script" path="res://SolarSystem.cs" id="1_biutj"]
 [ext_resource type="Texture2D" uid="uid://c55vl85vj1ke" path="res://2k_earth_daymap.jpg" id="1_yaws2"]
-[ext_resource type="PackedScene" uid="uid://cwr0sqhdhsoxg" path="res://spaceship.tscn" id="4_nenlh"]
 [ext_resource type="Texture2D" uid="uid://blkyamearklx8" path="res://mars_texturemap.png" id="4_r6b8d"]
 [ext_resource type="Texture2D" uid="uid://bsdne7saqa4y7" path="res://ESO_-_Milky_Way.jpg" id="5_rwgkv"]
-[ext_resource type="PackedScene" uid="uid://c8wfo70juhscb" path="res://spaceship/space_ship_diorama_1.glb" id="5_yuvgr"]
 [ext_resource type="Script" path="res://managers/music_controller.gd" id="6_kisol"]
 [ext_resource type="PackedScene" uid="uid://dh7elcep04tt2" path="res://Player.tscn" id="6_wutj3"]
+[ext_resource type="PackedScene" uid="uid://bdxfo5j4g1ifv" path="res://SpaceShip.tscn" id="7_kpm6n"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l07o7"]
 albedo_texture = ExtResource("1_yaws2")
@@ -27,7 +27,9 @@ height = 40.0
 albedo_color = Color(0.101961, 0.819608, 0.270588, 1)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_btiol"]
-radius = 12.7055
+radius = 16.2832
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_7rvb0"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_i78ja"]
 radius = 10.0
@@ -67,17 +69,25 @@ ambient_light_color = Color(1, 1, 1, 1)
 ambient_light_energy = 0.01
 
 [node name="SolarSystem" type="Node3D"]
+script = ExtResource("1_biutj")
 
 [node name="Earth" type="StaticBody3D" parent="."]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Earth"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.4542, -18.0087, -105.88)
 material_override = SubResource("StandardMaterial3D_l07o7")
 mesh = SubResource("SphereMesh_v6gf0")
 surface_material_override/0 = SubResource("StandardMaterial3D_fgtnl")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Earth"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -138.999, -107.857, 143.077)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.454, -18.009, -105.88)
 shape = SubResource("SphereShape3D_btiol")
+
+[node name="Area3D" type="Area3D" parent="Earth"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Earth/Area3D"]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 50, -20, -105)
+shape = SubResource("SphereShape3D_7rvb0")
 
 [node name="Moon" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65.9029, 0, 0)
@@ -85,6 +95,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65.9029, 0, 0)
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Moon"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Moon"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.9053, -8.90287, 49.9871)
 shape = SubResource("SphereShape3D_i78ja")
 
 [node name="Mars" type="StaticBody3D" parent="."]
@@ -117,16 +128,11 @@ shape = SubResource("SphereShape3D_hrc11")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_ocf52")
 
-[node name="Spaceship" parent="." instance=ExtResource("4_nenlh")]
-visible = true
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Spaceship"]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
-
-[node name="Player" parent="Spaceship" instance=ExtResource("6_wutj3")]
-transform = Transform3D(0.0333333, 0, 3.52774e-10, 0, 0.0333333, 0, -3.52774e-10, 0, 0.0333333, 0, 0, 0)
-
-[node name="Sketchfab_Scene" parent="Spaceship" instance=ExtResource("5_yuvgr")]
-
 [node name="MusicController" type="AudioStreamPlayer" parent="."]
 script = ExtResource("6_kisol")
+
+[node name="Player" parent="." instance=ExtResource("6_wutj3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -155.516, -189.492, -468.915)
+
+[node name="SpaceShip" parent="." instance=ExtResource("7_kpm6n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, -68, -84)
