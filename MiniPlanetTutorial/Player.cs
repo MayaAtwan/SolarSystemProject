@@ -68,6 +68,7 @@ public partial class Player : RigidBody3D
 
 	private void ProcessMovementInputs(double delta)
 	{
+		//GD.Print("playerrrr is controling nowwwwwwwwwww");// for testing- DONE
 		var movement = Vector3.Zero;
 		var forward = -GlobalTransform.Basis.Z;
 		var left = -GlobalTransform.Basis.X;
@@ -91,6 +92,9 @@ public partial class Player : RigidBody3D
 		// Place the player just outside the spaceship
 		GlobalPosition = _spaceship.GlobalTransform.Origin + _spaceship.GlobalTransform.Basis.Z * 5f; // Adjust position as needed
 		GD.Print("Player has exited the spaceship");
+	_spaceship.SetControlEnabled(false);	
+	_camera.Current = true;
+	Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
 
 	public override void _Input(InputEvent e)

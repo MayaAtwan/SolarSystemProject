@@ -5,7 +5,7 @@ public partial class SpaceShip : RigidBody3D
 {
 	[Export] private float thrust = 10f;
 	[Export] private float rotationSpeed = 1f;
-
+	private bool _controlEnabled = true;
 	private Vector2 _mouseDelta;
 
 	public override void _Ready()
@@ -18,8 +18,15 @@ public partial class SpaceShip : RigidBody3D
 		ProcessSpaceshipMovement(delta);
 	}
 
+	public void SetControlEnabled(bool enabled)
+	{
+		_controlEnabled = enabled;
+		// GD.Print("spaceship out of controlllll");
+	}
 	private void ProcessSpaceshipMovement(double delta)
 	{
+		if (!_controlEnabled) return;
+		
 		var movement = Vector3.Zero;
 
 		var forward = -GlobalTransform.Basis.Z;
