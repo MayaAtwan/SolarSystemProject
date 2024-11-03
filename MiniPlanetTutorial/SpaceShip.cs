@@ -5,9 +5,8 @@ public partial class SpaceShip : RigidBody3D
 {
 	[Export] private float thrust = 10f;
 	[Export] private float rotationSpeed = 1f;
-	[Export] private StaticBody3D earthNode; // Reference to the Earth node in SolarSystem.tscn
-	[Export] private float landingDistanceThreshold = 100f; // Distance at which the spaceship can land on Earth
-
+	[Export] private StaticBody3D earthNode; 
+	[Export] private float landingDistanceThreshold = 100f; 
 	private bool _controlEnabled = true;
 	private Vector2 _mouseDelta;
 
@@ -57,6 +56,7 @@ public partial class SpaceShip : RigidBody3D
 	private void CheckProximityToEarth()
 {
 	if (earthNode == null) return;
+
 	float distanceToEarth = GlobalTransform.Origin.DistanceTo(earthNode.GlobalTransform.Origin);
 
 	if (distanceToEarth <= landingDistanceThreshold)
@@ -75,18 +75,53 @@ public partial class SpaceShip : RigidBody3D
 	private void LandOnEarth()
 	{
 		GD.Print("Attempting to land on Earth...");
-		string earthScenePath ="res://Earth.tscn";
+		 var animationPlayer = GetNode<AnimationPlayer>($"../CanvasLayer/AnimationPlayer");
+		GD.Print(animationPlayer);
 
-		if (ResourceLoader.Exists(earthScenePath))
-		{
-			GetTree().ChangeSceneToFile(earthScenePath);
-			GD.Print("Transitioning to Earth scene for landing.");
-		}
-		else
-		{
-			GD.PrintErr("Earth scene not found at path: " + earthScenePath);
-		}
+	// Play the flash animation before fade-out
+	animationPlayer.Play("Flash");
+	GD.Print("Flash");
+
+	// Delay fade-out slightly after flash effect
+	GetTree().CreateTimer(0.2).Timeout += () =>
+	{
+		animationPlayer.Play("FadeOut");
+		GetTree().CreateTimer(3.0).Timeout += () => TransitionToEarthScene();
+	};
+		// string earthScenePath ="res://Earth.tscn";
+
+		//if (ResourceLoader.Exists(earthScenePath))
+		//{
+			//GetTree().ChangeSceneToFile(earthScenePath);
+			//GD.Print("Transitioning to Earth scene for landing.");
+		//}
+		//else
+		//{
+			//GD.PrintErr("Earth scene not found at path: " + earthScenePath);
+		//}
 	}
+	
+	private void TransitionToEarthScene()
+{
+	string earthScenePath ="res://Earth.tscn"; 
+
+	if (ResourceLoader.Exists(earthScenePath))
+	{
+		GetTree().ChangeSceneToFile(earthScenePath);
+		GD.Print("Transitioning to Earth scene for landing.");
+		// Play fade-in animation in the Earth scene
+		var fadeAnimationPlayer = GetNode<AnimationPlayer>($"../CanvasLayer/AnimationPlayer");
+		fadeAnimationPlayer.Play("FadeIn");
+		GetTree().CreateTimer(3.0).Timeout += () =>
+		{
+			GD.Print("Fade-in complete.");
+		};
+	}
+	else
+	{
+		GD.PrintErr("Earth scene not found at path: " + earthScenePath);
+	}
+}
 
 	public override void _Input(InputEvent e)
 	{

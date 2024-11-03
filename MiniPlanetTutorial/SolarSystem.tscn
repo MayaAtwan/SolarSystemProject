@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://bxjkkgh0jfjm"]
+[gd_scene load_steps=29 format=3 uid="uid://bxjkkgh0jfjm"]
 
 [ext_resource type="Script" path="res://SolarSystem.cs" id="1_biutj"]
 [ext_resource type="Texture2D" uid="uid://c55vl85vj1ke" path="res://2k_earth_daymap.jpg" id="1_yaws2"]
@@ -68,6 +68,74 @@ ambient_light_source = 2
 ambient_light_color = Color(1, 1, 1, 1)
 ambient_light_energy = 0.01
 
+[sub_resource type="Animation" id="Animation_r5ixl"]
+resource_name = "FadeOut"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ColorRect:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0, 0, 0, 1), Color(0.288518, 0.288518, 0.288518, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_htm2j"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ColorRect:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(0, 0, 0, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_aeetk"]
+resource_name = "FadeIn"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ColorRect:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 1), Color(0, 0, 0, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_j2uex"]
+resource_name = "Flash"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ColorRect:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(0, 0, 0, 1), Color(0.131929, 0.578354, 0.411142, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_udbcq"]
+_data = {
+"FadeIn": SubResource("Animation_aeetk"),
+"FadeOut": SubResource("Animation_r5ixl"),
+"Flash": SubResource("Animation_j2uex"),
+"RESET": SubResource("Animation_htm2j")
+}
+
 [node name="SolarSystem" type="Node3D"]
 script = ExtResource("1_biutj")
 
@@ -135,5 +203,21 @@ script = ExtResource("6_kisol")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -155.516, -189.492, -468.915)
 
 [node name="SpaceShip" parent="." node_paths=PackedStringArray("earthNode") instance=ExtResource("7_kpm6n")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, -68, -84)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, -71.4202, -88.262)
 earthNode = NodePath("../Earth")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
+modulate = Color(0, 0, 0, 1)
+offset_right = 40.0
+offset_bottom = 40.0
+color = Color(0, 0, 0, 1)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="CanvasLayer"]
+libraries = {
+"": SubResource("AnimationLibrary_udbcq")
+}
+playback_auto_capture = false
+speed_scale = 0.2
+movie_quit_on_finish = true
