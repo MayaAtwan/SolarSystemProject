@@ -1,0 +1,76 @@
+[gd_scene load_steps=11 format=3 uid="uid://swycgq283u47"]
+
+[ext_resource type="PackedScene" path="res://Asset/terrain.tscn" id="1_0y7k1"]
+[ext_resource type="PackedScene" path="res://Asset/tree.tscn" id="2_6obw7"]
+[ext_resource type="Texture2D" uid="uid://t22ee2b5qhee" path="res://Asset/meshes_TerrainTexture.png" id="2_efmih"]
+[ext_resource type="PackedScene" path="res://Asset/plant.tscn" id="3_ivvsh"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b35ev"]
+albedo_texture = ExtResource("2_efmih")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_c0y2f"]
+transparency = 1
+albedo_color = Color(0.168627, 0.717647, 1, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_w14ap"]
+material = SubResource("StandardMaterial3D_c0y2f")
+size = Vector2(2000, 2000)
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_q1c1x"]
+sky_top_color = Color(0.32549, 0.878431, 1, 1)
+sky_horizon_color = Color(0.670588, 0.784314, 0.831373, 1)
+ground_horizon_color = Color(0.670588, 0.784314, 0.831373, 1)
+
+[sub_resource type="Sky" id="Sky_vcnq7"]
+sky_material = SubResource("ProceduralSkyMaterial_q1c1x")
+
+[sub_resource type="Environment" id="Environment_rrul6"]
+background_mode = 2
+sky = SubResource("Sky_vcnq7")
+ambient_light_color = Color(0.32549, 0.878431, 1, 1)
+ambient_light_sky_contribution = 0.55
+
+[node name="Earth" type="Node"]
+
+[node name="island" type="Node" parent="."]
+
+[node name="Terrain" parent="island" instance=ExtResource("1_0y7k1")]
+material_override = SubResource("StandardMaterial3D_b35ev")
+
+[node name="Tree" parent="island" instance=ExtResource("2_6obw7")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -5.76302, -0.548959, 3.49008)
+
+[node name="Tree2" parent="island" instance=ExtResource("2_6obw7")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -0.628947, -0.197625, 0.466619)
+
+[node name="Tree3" parent="island" instance=ExtResource("2_6obw7")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 6.50513, -0.197625, -0.108274)
+
+[node name="Tree4" parent="island" instance=ExtResource("2_6obw7")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 6.50513, 0.0770731, -14.1495)
+
+[node name="Plant" parent="island" instance=ExtResource("3_ivvsh")]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 1.42488, 0.113089, -0.361773)
+
+[node name="Plant2" parent="island" instance=ExtResource("3_ivvsh")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 2.11438, 0.364844, 3.55998)
+
+[node name="Water" type="MeshInstance3D" parent="island"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.01077, -3.25727, 1.00399)
+mesh = SubResource("PlaneMesh_w14ap")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="island"]
+transform = Transform3D(0.396667, 0.917962, 0, -0.917962, 0.396667, 0, 0, 0, 1, 23.0904, 1.46138, 21.2026)
+light_color = Color(0.996078, 1, 0.596078, 1)
+shadow_enabled = true
+shadow_bias = 0.909
+shadow_normal_bias = 7.202
+shadow_transmittance_bias = -11.233
+shadow_opacity = 0.67
+shadow_blur = 1.52
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="island"]
+environment = SubResource("Environment_rrul6")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.3302, 1.26528, 13.5723)
