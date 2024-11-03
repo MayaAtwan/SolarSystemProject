@@ -18,9 +18,10 @@ material = SubResource("StandardMaterial3D_c0y2f")
 size = Vector2(2000, 2000)
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_q1c1x"]
-sky_top_color = Color(0.32549, 0.878431, 1, 1)
-sky_horizon_color = Color(0.670588, 0.784314, 0.831373, 1)
-ground_horizon_color = Color(0.670588, 0.784314, 0.831373, 1)
+sky_top_color = Color(0.0122246, 0.206688, 0.370127, 1)
+sky_horizon_color = Color(0.0104995, 0.0712354, 0.183207, 1)
+ground_horizon_color = Color(0.0117647, 0.0705882, 0.184314, 1)
+sun_angle_max = 90.4
 
 [sub_resource type="Sky" id="Sky_vcnq7"]
 sky_material = SubResource("ProceduralSkyMaterial_q1c1x")
@@ -28,7 +29,7 @@ sky_material = SubResource("ProceduralSkyMaterial_q1c1x")
 [sub_resource type="Environment" id="Environment_rrul6"]
 background_mode = 2
 sky = SubResource("Sky_vcnq7")
-ambient_light_color = Color(0.32549, 0.878431, 1, 1)
+ambient_light_color = Color(0.0337417, 0.235052, 0.306697, 1)
 ambient_light_sky_contribution = 0.55
 
 [node name="Earth" type="Node"]

@@ -6,7 +6,7 @@ public partial class SpaceShip : RigidBody3D
 	[Export] private float thrust = 10f;
 	[Export] private float rotationSpeed = 1f;
 	[Export] private StaticBody3D earthNode; // Reference to the Earth node in SolarSystem.tscn
-	[Export] private float landingDistanceThreshold = 50f; // Distance at which the spaceship can land on Earth
+	[Export] private float landingDistanceThreshold = 100f; // Distance at which the spaceship can land on Earth
 
 	private bool _controlEnabled = true;
 	private Vector2 _mouseDelta;
