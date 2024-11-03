@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class Player : RigidBody3D
+public partial class Player : CharacterBody3D
 {
 	[ExportCategory("Nodes")]
 	[Export] private Camera3D _camera;
@@ -12,12 +12,14 @@ public partial class Player : RigidBody3D
 	private Vector2 _mouseDelta;
 	private float _cameraXRotation;
 
-	[Export] private float _thrust = 1f;
+	[Export] private float _walkSpeed = 5f;
+	[Export] private float _spaceThrust = 1f;
 	[Export] private float _rotationSpeed = 1f;
 
 	private bool _isInsideSpaceship = true;
+	private bool _onEarth = false;
 	private SpaceShip _spaceship;
-	private bool _inMap;
+	private Vector3 _velocity = Vector3.Zero;
 
 	public override void _Ready()
 	{
@@ -35,27 +37,30 @@ public partial class Player : RigidBody3D
 			GD.Print("Spaceship found: " + _spaceship.Name);
 			GlobalPosition = _spaceship.GlobalTransform.Origin;
 		}
-		ShowMap(false);
 	}
 
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
-		if (Input.IsActionJustReleased("Map"))
-		{
-			ShowMap(!_inMap);
-		}
+
 		if (_isInsideSpaceship)
 		{
 			FollowSpaceship(delta);
-			if (Input.IsActionJustPressed("ui_accept")) // "ui_accept" is usually mapped to the Enter key
+			if (Input.IsActionJustPressed("ui_accept"))
 			{
 				ExitSpaceship();
 			}
 		}
 		else
 		{
-			ProcessMovementInputs(delta);
+			if (_onEarth)
+			{
+				ProcessEarthMovement(delta);
+			}
+			else
+			{
+				ProcessSpaceMovement(delta);
+			}
 		}
 	}
 
@@ -66,9 +71,8 @@ public partial class Player : RigidBody3D
 		GlobalRotation = _spaceship.GlobalRotation;
 	}
 
-	private void ProcessMovementInputs(double delta)
+	private void ProcessSpaceMovement(double delta)
 	{
-		//GD.Print("playerrrr is controling nowwwwwwwwwww");// for testing- DONE
 		var movement = Vector3.Zero;
 		var forward = -GlobalTransform.Basis.Z;
 		var left = -GlobalTransform.Basis.X;
@@ -81,20 +85,49 @@ public partial class Player : RigidBody3D
 		if (Input.IsActionPressed("Up")) movement += up;
 		if (Input.IsActionPressed("Down")) movement -= up;
 
-		ApplyCentralForce(_thrust * movement.Normalized());
+		_velocity = movement.Normalized() * _spaceThrust * (float)delta;
+
+		GlobalPosition += _velocity; // Directly update position in space
 	}
 
-	// Called when the player exits the spaceship
+	private void ProcessEarthMovement(double delta)
+	{
+		var movement = Vector3.Zero;
+		var forward = -GlobalTransform.Basis.Z;
+		var left = -GlobalTransform.Basis.X;
+
+		if (Input.IsActionPressed("Forward")) movement += forward;
+		if (Input.IsActionPressed("Backward")) movement -= forward;
+		if (Input.IsActionPressed("Left")) movement += left;
+		if (Input.IsActionPressed("Right")) movement -= left;
+
+		_velocity = movement.Normalized() * _walkSpeed * (float)delta;
+		
+		// Keep the player grounded by ignoring Y-axis changes
+		_velocity.Y = 0;
+		
+		GlobalPosition += _velocity; // Directly update position on Earth
+	}
+
 	private void ExitSpaceship()
 	{
 		_isInsideSpaceship = false;
+		_onEarth = true;
 
-		// Place the player just outside the spaceship
-		GlobalPosition = _spaceship.GlobalTransform.Origin + _spaceship.GlobalTransform.Basis.Z * 5f; // Adjust position as needed
+		GlobalPosition = _spaceship.GlobalTransform.Origin + _spaceship.GlobalTransform.Basis.Z * 5f;
 		GD.Print("Player has exited the spaceship");
-	_spaceship.SetControlEnabled(false);	
-	_camera.Current = true;
-	Input.MouseMode = Input.MouseModeEnum.Captured;
+
+		_spaceship.SetControlEnabled(false);
+
+		_camera.Current = true;
+		Input.MouseMode = Input.MouseModeEnum.Captured;
+	}
+
+	public void EnterSpaceMode()
+	{
+		_onEarth = false;
+		_isInsideSpaceship = false;
+		_velocity = Vector3.Zero;
 	}
 
 	public override void _Input(InputEvent e)
@@ -104,22 +137,6 @@ public partial class Player : RigidBody3D
 		if (e is InputEventMouseMotion mouseMotion)
 		{
 			_mouseDelta += mouseMotion.Relative;
-		}
-	}
-
-	private void ShowMap(bool inMap)
-	{
-		_inMap = inMap;
-
-		if (_inMap)
-		{
-			Input.MouseMode = Input.MouseModeEnum.Visible;
-			_camera.Current = false;
-		}
-		else
-		{
-			Input.MouseMode = Input.MouseModeEnum.Captured;
-			_camera.Current = true;
 		}
 	}
 }

@@ -6,8 +6,10 @@ public partial class SpaceShip : RigidBody3D
 	[Export] private float thrust = 10f;
 	[Export] private float rotationSpeed = 1f;
 	[Export] private StaticBody3D earthNode; 
-	[Export] private float landingDistanceThreshold = 100f; 
+	[Export] private float landingDistanceThreshold = 100f;
+	
 	private bool _controlEnabled = true;
+	private bool _isLandedOnEarth = false; // Tracks if the spaceship is landed on Earth
 	private Vector2 _mouseDelta;
 
 	public override void _Ready()
@@ -17,8 +19,11 @@ public partial class SpaceShip : RigidBody3D
 
 	public override void _Process(double delta)
 	{
-		ProcessSpaceshipMovement(delta);
-		CheckProximityToEarth();
+		if (!_isLandedOnEarth) // Only allow movement if not landed on Earth
+		{
+			ProcessSpaceshipMovement(delta);
+			CheckProximityToEarth();
+		}
 	}
 
 	public void SetControlEnabled(bool enabled)
@@ -28,10 +33,9 @@ public partial class SpaceShip : RigidBody3D
 
 	private void ProcessSpaceshipMovement(double delta)
 	{
-		if (!_controlEnabled) return;
+		if (!_controlEnabled || _isLandedOnEarth) return; // Stop movement if control is disabled or if landed
 
 		var movement = Vector3.Zero;
-
 		var forward = -GlobalTransform.Basis.Z;
 		var left = -GlobalTransform.Basis.X;
 		var up = GlobalTransform.Basis.Y;
@@ -54,74 +58,60 @@ public partial class SpaceShip : RigidBody3D
 	}
 
 	private void CheckProximityToEarth()
-{
-	if (earthNode == null) return;
-
-	float distanceToEarth = GlobalTransform.Origin.DistanceTo(earthNode.GlobalTransform.Origin);
-
-	if (distanceToEarth <= landingDistanceThreshold)
 	{
-		GD.Print("Close enough to Earth, ready to land!");
+		if (earthNode == null) return;
 
-		// If the player presses the E - Land button switch to Earth scene
-		if (Input.IsActionJustPressed("Land"))
+		float distanceToEarth = GlobalTransform.Origin.DistanceTo(earthNode.GlobalTransform.Origin);
+
+		if (distanceToEarth <= landingDistanceThreshold)
 		{
-			LandOnEarth();
+			GD.Print("Close enough to Earth, ready to land!");
+
+			// If the player presses the E - Land button, switch to Earth scene
+			if (Input.IsActionJustPressed("Land"))
+			{
+				LandOnEarth();
+			}
 		}
 	}
-}
-
 
 	private void LandOnEarth()
 	{
 		GD.Print("Attempting to land on Earth...");
-		 var animationPlayer = GetNode<AnimationPlayer>($"../CanvasLayer/AnimationPlayer");
-		GD.Print(animationPlayer);
 
-	// Play the flash animation before fade-out
-	animationPlayer.Play("Flash");
-	GD.Print("Flash");
+		// Disable movement controls and set landed state
+		_controlEnabled = false;
+		_isLandedOnEarth = true;
 
-	// Delay fade-out slightly after flash effect
-	GetTree().CreateTimer(0.2).Timeout += () =>
-	{
+		// Optionally play an animation or effect before transitioning
+		var animationPlayer = GetNode<AnimationPlayer>("../CanvasLayer/AnimationPlayer");
 		animationPlayer.Play("FadeOut");
-		GetTree().CreateTimer(3.0).Timeout += () => TransitionToEarthScene();
-	};
-		// string earthScenePath ="res://Earth.tscn";
-
-		//if (ResourceLoader.Exists(earthScenePath))
-		//{
-			//GetTree().ChangeSceneToFile(earthScenePath);
-			//GD.Print("Transitioning to Earth scene for landing.");
-		//}
-		//else
-		//{
-			//GD.PrintErr("Earth scene not found at path: " + earthScenePath);
-		//}
+		
+		// Delay the scene transition until after the animation completes
+		GetTree().CreateTimer(1.0).Timeout += () => TransitionToEarthScene();
 	}
-	
+
 	private void TransitionToEarthScene()
-{
-	string earthScenePath ="res://Earth.tscn"; 
+	{
+		string earthScenePath = "res://Earth.tscn";
 
-	if (ResourceLoader.Exists(earthScenePath))
-	{
-		GetTree().ChangeSceneToFile(earthScenePath);
-		GD.Print("Transitioning to Earth scene for landing.");
-		// Play fade-in animation in the Earth scene
-		var fadeAnimationPlayer = GetNode<AnimationPlayer>($"../CanvasLayer/AnimationPlayer");
-		fadeAnimationPlayer.Play("FadeIn");
-		GetTree().CreateTimer(3.0).Timeout += () =>
+		if (ResourceLoader.Exists(earthScenePath))
 		{
-			GD.Print("Fade-in complete.");
-		};
+			GetTree().ChangeSceneToFile(earthScenePath);
+			GD.Print("Transitioning to Earth scene for landing.");
+		}
+		else
+		{
+			GD.PrintErr("Earth scene not found at path: " + earthScenePath);
+		}
 	}
-	else
+
+	public void EnterSpaceMode()
 	{
-		GD.PrintErr("Earth scene not found at path: " + earthScenePath);
+		// Reset spaceship state for space mode
+		_isLandedOnEarth = false;
+		_controlEnabled = true;
 	}
-}
 
 	public override void _Input(InputEvent e)
 	{

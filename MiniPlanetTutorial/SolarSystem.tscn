@@ -203,7 +203,7 @@ script = ExtResource("6_kisol")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -155.516, -189.492, -468.915)
 
 [node name="SpaceShip" parent="." node_paths=PackedStringArray("earthNode") instance=ExtResource("7_kpm6n")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, -71.4202, -88.262)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, -40, -100)
 earthNode = NodePath("../Earth")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]

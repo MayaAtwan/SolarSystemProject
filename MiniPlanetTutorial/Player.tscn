@@ -5,9 +5,8 @@
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_oioec"]
 
-[node name="Player" type="RigidBody3D"]
+[node name="Player" type="CharacterBody3D"]
 transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
-angular_damp = 10.0
 script = ExtResource("1_1sbp3")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]

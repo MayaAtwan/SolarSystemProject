@@ -76,7 +76,8 @@ shadow_blur = 1.52
 environment = SubResource("Environment_rrul6")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.3302, 1.26528, 13.5723)
+transform = Transform3D(0.243356, -0.969773, 0.0178363, 0.969927, 0.243395, -4.51658e-10, -0.00434127, 0.0172999, 0.999841, 5.95884, 1.14869, 14.0688)
+fov = 131.828
 
 [node name="PlayerSpawn" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.33, 1.265, 13.572)
