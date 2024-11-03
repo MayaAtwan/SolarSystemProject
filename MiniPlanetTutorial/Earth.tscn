@@ -1,6 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://swycgq283u47"]
+[gd_scene load_steps=12 format=3 uid="uid://swycgq283u47"]
 
 [ext_resource type="PackedScene" path="res://Asset/terrain.tscn" id="1_0y7k1"]
+[ext_resource type="Script" path="res://Earth.cs" id="1_gvvw5"]
 [ext_resource type="PackedScene" path="res://Asset/tree.tscn" id="2_6obw7"]
 [ext_resource type="Texture2D" uid="uid://t22ee2b5qhee" path="res://Asset/meshes_TerrainTexture.png" id="2_efmih"]
 [ext_resource type="PackedScene" path="res://Asset/plant.tscn" id="3_ivvsh"]
@@ -31,6 +32,7 @@ ambient_light_color = Color(0.32549, 0.878431, 1, 1)
 ambient_light_sky_contribution = 0.55
 
 [node name="Earth" type="Node"]
+script = ExtResource("1_gvvw5")
 
 [node name="island" type="Node" parent="."]
 
@@ -74,3 +76,6 @@ environment = SubResource("Environment_rrul6")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.3302, 1.26528, 13.5723)
+
+[node name="PlayerSpawn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.33, 1.265, 13.572)

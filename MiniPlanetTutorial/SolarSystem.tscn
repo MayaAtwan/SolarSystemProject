@@ -134,5 +134,6 @@ script = ExtResource("6_kisol")
 [node name="Player" parent="." instance=ExtResource("6_wutj3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -155.516, -189.492, -468.915)
 
-[node name="SpaceShip" parent="." instance=ExtResource("7_kpm6n")]
+[node name="SpaceShip" parent="." node_paths=PackedStringArray("earthNode") instance=ExtResource("7_kpm6n")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, -68, -84)
+earthNode = NodePath("../Earth")
