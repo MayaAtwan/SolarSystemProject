@@ -1,10 +1,12 @@
-[gd_scene load_steps=12 format=3 uid="uid://swycgq283u47"]
+[gd_scene load_steps=14 format=3 uid="uid://swycgq283u47"]
 
 [ext_resource type="PackedScene" path="res://Asset/terrain.tscn" id="1_0y7k1"]
 [ext_resource type="Script" path="res://Earth.cs" id="1_gvvw5"]
 [ext_resource type="PackedScene" path="res://Asset/tree.tscn" id="2_6obw7"]
 [ext_resource type="Texture2D" uid="uid://t22ee2b5qhee" path="res://Asset/meshes_TerrainTexture.png" id="2_efmih"]
 [ext_resource type="PackedScene" path="res://Asset/plant.tscn" id="3_ivvsh"]
+[ext_resource type="PackedScene" uid="uid://xaoejedtn36h" path="res://Asset/low_poly_tree_scene_free.glb" id="6_2f3s7"]
+[ext_resource type="PackedScene" uid="uid://drpofeqiglc1w" path="res://Asset/futuristic_building.glb" id="6_lnbkx"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b35ev"]
 albedo_texture = ExtResource("2_efmih")
@@ -41,16 +43,16 @@ script = ExtResource("1_gvvw5")
 material_override = SubResource("StandardMaterial3D_b35ev")
 
 [node name="Tree" parent="island" instance=ExtResource("2_6obw7")]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -5.76302, -0.548959, 3.49008)
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 9.832, 0, 16.222)
 
 [node name="Tree2" parent="island" instance=ExtResource("2_6obw7")]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -0.628947, -0.197625, 0.466619)
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -21.0655, -3.44875, -15.5516)
 
 [node name="Tree3" parent="island" instance=ExtResource("2_6obw7")]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 6.50513, -0.197625, -0.108274)
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 12.3807, -1.43893, 5.09205)
 
 [node name="Tree4" parent="island" instance=ExtResource("2_6obw7")]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 6.50513, 0.0770731, -14.1495)
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 13.414, 0, -8.433)
 
 [node name="Plant" parent="island" instance=ExtResource("3_ivvsh")]
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 1.42488, 0.113089, -0.361773)
@@ -75,9 +77,21 @@ shadow_blur = 1.52
 [node name="WorldEnvironment" type="WorldEnvironment" parent="island"]
 environment = SubResource("Environment_rrul6")
 
+[node name="Sketchfab_Scene" parent="island" instance=ExtResource("6_2f3s7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.78, 0, -42.304)
+
+[node name="Sketchfab_Scene2" parent="island" instance=ExtResource("6_2f3s7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.77957, -0.529122, -42.3038)
+
+[node name="Sketchfab_Scene3" parent="island" instance=ExtResource("6_2f3s7")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -30.263, 1, 19.401)
+
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.243356, -0.969773, 0.0178363, 0.969927, 0.243395, -4.51658e-10, -0.00434127, 0.0172999, 0.999841, 5.95884, 1.14869, 14.0688)
 fov = 131.828
 
 [node name="PlayerSpawn" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.33, 1.265, 13.572)
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("6_lnbkx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.85134, 0.330845, -8.88323)

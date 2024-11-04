@@ -85,7 +85,7 @@ public partial class SpaceShip : RigidBody3D
 
 		// Optionally play an animation or effect before transitioning
 		var animationPlayer = GetNode<AnimationPlayer>("../CanvasLayer/AnimationPlayer");
-		animationPlayer.Play("FadeOut");
+		// animationPlayer.Play("FadeOut");
 		
 		// Delay the scene transition until after the animation completes
 		GetTree().CreateTimer(1.0).Timeout += () => TransitionToEarthScene();
