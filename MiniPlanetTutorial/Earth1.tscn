@@ -1,0 +1,34 @@
+[gd_scene load_steps=7 format=3 uid="uid://xtb6lvxeqiq6"]
+
+[ext_resource type="Texture2D" uid="uid://mgfkwh63ssk7" path="res://earth_texturemap.png" id="1_psgni"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_adeic"]
+albedo_texture = ExtResource("1_psgni")
+
+[sub_resource type="SphereMesh" id="SphereMesh_s7oj3"]
+radius = 50.0
+height = 90.0
+
+[sub_resource type="Skin" id="Skin_w5djw"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wjydx"]
+shading_mode = 2
+diffuse_mode = 3
+vertex_color_use_as_albedo = true
+vertex_color_is_srgb = true
+albedo_color = Color(0.223845, 0.674235, 0.533875, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_47vp4"]
+
+[node name="Earth1" type="Node3D"]
+
+[node name="Visual" type="MeshInstance3D" parent="."]
+material_override = SubResource("StandardMaterial3D_adeic")
+mesh = SubResource("SphereMesh_s7oj3")
+skin = SubResource("Skin_w5djw")
+surface_material_override/0 = SubResource("StandardMaterial3D_wjydx")
+
+[node name="PlanetBody" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PlanetBody"]
+shape = SubResource("SphereShape3D_47vp4")

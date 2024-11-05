@@ -8,24 +8,27 @@ public partial class SolarSystem : Node3D
 	public static SolarSystem Instance { get; private set; }
 
 	public Planet[] Planets { get; private set; }
+	public Earth1 EarthNode { get; private set; }
 
 	public override void _Ready()
 	{
 		Instance = this;
 		GD.Print("SolarSystem.Instance set");
+
 		Planets = this.GetChildren().Where(x => x is Planet).Cast<Planet>().ToArray();
 
-		var orderedPlanets = Planets.OrderBy(planet => planet.HowManyParents());
-		foreach (var planet in orderedPlanets)
+		foreach (var planet in Planets)
 		{
 			planet.Init();
-		} 
-		_player = GetNode<Player>("Player");
-		_spaceship = GetNode<SpaceShip>("SpaceShip");
+		}
 
-		if (_player == null || _spaceship == null)
+		EarthNode = GetNode<Earth1>("Earth1"); 
+		_spaceship = GetNode<SpaceShip>("SpaceShip");
+		_player = GetNode<Player>("Player");
+
+		if (_spaceship == null || EarthNode == null)
 		{
-			GD.PrintErr("Player or SpaceShip node not found in SolarSystem.");
+			GD.PrintErr("SpaceShip or Earth1 node not found in SolarSystem.");
 		}
 	}
 }

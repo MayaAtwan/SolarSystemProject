@@ -3,36 +3,43 @@ using System;
 
 public partial class SpaceShip : RigidBody3D
 {
-	[Export] private float thrust = 7f;
-	[Export] private StaticBody3D earthNode;
+	[Export] private float thrust = 20f;
 	[Export] private float landingDistanceThreshold = 150f;
-	[Export] private PackedScene earthScene; 
+	[Export] private float landingSpeed = 1f;
 
+	private Earth1 earthNode;
 	private bool _controlEnabled = true;
 	private bool _isLandedOnEarth = false;
+	private Vector3 _targetLandingPosition;
 
 	public override void _Ready()
 	{
 		GD.Print("Spaceship Ready");
+		var solarSystem = GetParent() as SolarSystem;
+		earthNode = solarSystem?.EarthNode;
+
+		if (earthNode == null)
+		{
+			GD.PrintErr("Earth node not found in SolarSystem.");
+		}
 	}
 
 	public override void _Process(double delta)
 	{
-		if (_controlEnabled && !_isLandedOnEarth) 
+		if (_controlEnabled && !_isLandedOnEarth)
 		{
 			ProcessSpaceshipMovement(delta);
 			CheckProximityToEarth();
 		}
-	}
-
-	public void SetControlEnabled(bool enabled)
-	{
-		_controlEnabled = enabled;
+		else if (_isLandedOnEarth)
+		{
+			ApproachLandingPosition((float)delta);
+		}
 	}
 
 	private void ProcessSpaceshipMovement(double delta)
 	{
-		if (!_controlEnabled || _isLandedOnEarth) return; 
+		if (!_controlEnabled || _isLandedOnEarth) return;
 
 		Vector3 movement = Vector3.Zero;
 		Vector3 forward = -GlobalTransform.Basis.Z;
@@ -54,85 +61,38 @@ public partial class SpaceShip : RigidBody3D
 		if (earthNode == null) return;
 
 		float distanceToEarth = GlobalTransform.Origin.DistanceTo(earthNode.GlobalTransform.Origin);
-
 		if (distanceToEarth <= landingDistanceThreshold)
 		{
 			GD.Print("Close enough to Earth, ready to land!");
-
 			if (Input.IsActionJustPressed("Land"))
 			{
-				LandOnEarth();
+				InitiateLanding();
 			}
 		}
 	}
 
-	private void LandOnEarth()
+	private void InitiateLanding()
 	{
-		GD.Print("Attempting to land on Earth...");
+		GD.Print("Landing on Earth...");
+		_controlEnabled = false;
+		_isLandedOnEarth = true;
 
-		_controlEnabled = false; // Disable further control
-		_isLandedOnEarth = true; // Mark as landed
-		SetPhysicsProcess(false); // Disable physics processing to prevent any unintended movement
+		LinearVelocity = Vector3.Zero;
+		AngularVelocity = Vector3.Zero;
 
-		GetTree().CreateTimer(1.0).Timeout += () => TransitionToEarthScene();
+		Vector3 directionToEarth = (earthNode.GlobalTransform.Origin - GlobalTransform.Origin).Normalized();
+		_targetLandingPosition = earthNode.GlobalTransform.Origin + directionToEarth * (earthNode.surfaceRadius + 1.0f);
 	}
 
-	private void TransitionToEarthScene()
+	private void ApproachLandingPosition(float delta)
 	{
-		if (earthScene != null)
+		GlobalPosition = GlobalPosition.Lerp(_targetLandingPosition, landingSpeed * delta);
+
+		if (GlobalPosition.DistanceTo(_targetLandingPosition) < 0.1f)
 		{
-			// Load and instance Earth scene
-			var earthInstance = earthScene.Instantiate();
-			GetParent().AddChild(earthInstance);
-
-			// Move the spaceship to Earth spawn point
-			var spaceshipLandingPoint = earthInstance.GetNodeOrNull<Marker3D>("SpaceshipLandingPoint");
-			if (spaceshipLandingPoint != null)
-			{
-				GlobalPosition = spaceshipLandingPoint.GlobalTransform.Origin;
-				GlobalRotation = spaceshipLandingPoint.GlobalTransform.Basis.GetEuler();
-				GD.Print("Transitioned to Earth scene for landing.");
-			}
-			else
-			{
-				GD.PrintErr("SpaceshipLandingPoint node not found in Earth scene.");
-			}
-
-			// Completely disable movement
-			_controlEnabled = false;
-			SetPhysicsProcess(false); 
-		}
-		else
-		{
-			GD.PrintErr("Earth scene not loaded. Please set the Earth scene reference.");
-		}
-	}
-
-	// Method to return to space
-	public void ReturnToSpace()
-	{
-		_controlEnabled = true;
-		_isLandedOnEarth = false;
-		SetPhysicsProcess(true); 
-
-		string solarSystemScenePath = "res://SolarSystem.tscn";
-
-		if (ResourceLoader.Exists(solarSystemScenePath))
-		{
-			GetTree().ChangeSceneToFile(solarSystemScenePath);
-			GD.Print("Returning to space...");
-		}
-		else
-		{
-			GD.PrintErr("Solar System scene not found.");
-		}
-	}
-
-	public override void _Input(InputEvent e)
-	{
-		if (e.IsActionPressed("ReturnToSpace") && _isLandedOnEarth)
-		{
-			ReturnToSpace();
+			GD.Print("Landed on Earth successfully.");
+			GlobalPosition = _targetLandingPosition;
+			SetPhysicsProcess(false);
 		}
 	}
 }

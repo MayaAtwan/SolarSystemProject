@@ -117,7 +117,7 @@ public partial class Player : CharacterBody3D
 		GlobalPosition = _spaceship.GlobalTransform.Origin + _spaceship.GlobalTransform.Basis.Z * 5f;
 		GD.Print("Player has exited the spaceship");
 
-		_spaceship.SetControlEnabled(false);
+		//_spaceship.SetControlEnabled(false);
 
 		_camera.Current = true;
 		Input.MouseMode = Input.MouseModeEnum.Captured;
