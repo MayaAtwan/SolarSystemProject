@@ -5,9 +5,9 @@
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_adeic"]
 albedo_texture = ExtResource("1_psgni")
 
-[sub_resource type="SphereMesh" id="SphereMesh_s7oj3"]
+[sub_resource type="SphereMesh" id="SphereMesh_oi7gn"]
 radius = 50.0
-height = 90.0
+height = 80.0
 
 [sub_resource type="Skin" id="Skin_w5djw"]
 
@@ -26,7 +26,7 @@ radius = 50.0
 
 [node name="Visual" type="MeshInstance3D" parent="."]
 material_override = SubResource("StandardMaterial3D_adeic")
-mesh = SubResource("SphereMesh_s7oj3")
+mesh = SubResource("SphereMesh_oi7gn")
 skin = SubResource("Skin_w5djw")
 surface_material_override/0 = SubResource("StandardMaterial3D_wjydx")
 

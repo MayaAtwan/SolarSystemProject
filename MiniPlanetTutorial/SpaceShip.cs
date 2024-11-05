@@ -16,12 +16,43 @@ public partial class SpaceShip : RigidBody3D
 	{
 		GD.Print("Spaceship Ready");
 		var solarSystem = GetParent() as SolarSystem;
-		earthNode = solarSystem?.EarthNode;
 
-		if (earthNode == null)
+		if (solarSystem == null)
 		{
-			GD.PrintErr("Earth node not found in SolarSystem.");
+			GD.PrintErr("SolarSystem parent not found.");
 		}
+		else
+		{
+			earthNode = solarSystem.EarthNode;
+			if (earthNode == null)
+			{
+				GD.PrintErr("Earth node not found in SolarSystem.");
+			}
+		}
+	}
+private void ProcessSpaceshipMovement(double delta)
+{
+	if (!_controlEnabled || _isLandedOnEarth) return;
+
+	Vector3 movement = Vector3.Zero;
+	Vector3 forward = -GlobalTransform.Basis.Z;
+	Vector3 left = -GlobalTransform.Basis.X;
+	Vector3 up = GlobalTransform.Basis.Y;
+
+	if (Input.IsActionPressed("Forward")) movement += forward;
+	if (Input.IsActionPressed("Backward")) movement -= forward;
+	if (Input.IsActionPressed("Left")) movement += left;
+	if (Input.IsActionPressed("Right")) movement -= left;
+	if (Input.IsActionPressed("Up")) movement += up;
+	if (Input.IsActionPressed("Down")) movement -= up;
+
+	GlobalPosition += movement * thrust * (float)delta;
+}
+
+	// This function allows SolarSystem to set earthNode directly
+	public void SetEarthNode(Earth1 earth)
+	{
+		earthNode = earth;
 	}
 
 	public override void _Process(double delta)
@@ -36,44 +67,48 @@ public partial class SpaceShip : RigidBody3D
 			ApproachLandingPosition((float)delta);
 		}
 	}
+	private void ApproachLandingPosition(float delta)
+{
+	GlobalPosition = GlobalPosition.Lerp(_targetLandingPosition, landingSpeed * delta);
 
-	private void ProcessSpaceshipMovement(double delta)
+	if (GlobalPosition.DistanceTo(_targetLandingPosition) < 0.1f)
 	{
-		if (!_controlEnabled || _isLandedOnEarth) return;
-
-		Vector3 movement = Vector3.Zero;
-		Vector3 forward = -GlobalTransform.Basis.Z;
-		Vector3 left = -GlobalTransform.Basis.X;
-		Vector3 up = GlobalTransform.Basis.Y;
-
-		if (Input.IsActionPressed("Forward")) movement += forward;
-		if (Input.IsActionPressed("Backward")) movement -= forward;
-		if (Input.IsActionPressed("Left")) movement += left;
-		if (Input.IsActionPressed("Right")) movement -= left;
-		if (Input.IsActionPressed("Up")) movement += up;
-		if (Input.IsActionPressed("Down")) movement -= up;
-
-		GlobalPosition += movement * thrust * (float)delta;
+		GD.Print("Landed on Earth successfully.");
+		GlobalPosition = _targetLandingPosition;
+		SetPhysicsProcess(false);
 	}
+}
+
 
 	private void CheckProximityToEarth()
 	{
-		if (earthNode == null) return;
+		if (earthNode == null)
+		{
+			GD.Print("Earth node is null, cannot check proximity.");
+			return;
+		}
 
 		float distanceToEarth = GlobalTransform.Origin.DistanceTo(earthNode.GlobalTransform.Origin);
+		GD.Print("Distance to Earth:", distanceToEarth);
+
 		if (distanceToEarth <= landingDistanceThreshold)
 		{
 			GD.Print("Close enough to Earth, ready to land!");
 			if (Input.IsActionJustPressed("Land"))
 			{
-				InitiateLanding();
+				LandOnEarth();
 			}
+		}
+		else
+		{
+			GD.Print("Not within landing distance of Earth.");
 		}
 	}
 
-	private void InitiateLanding()
+	private void LandOnEarth()
 	{
 		GD.Print("Landing on Earth...");
+
 		_controlEnabled = false;
 		_isLandedOnEarth = true;
 
@@ -81,18 +116,11 @@ public partial class SpaceShip : RigidBody3D
 		AngularVelocity = Vector3.Zero;
 
 		Vector3 directionToEarth = (earthNode.GlobalTransform.Origin - GlobalTransform.Origin).Normalized();
-		_targetLandingPosition = earthNode.GlobalTransform.Origin + directionToEarth * (earthNode.surfaceRadius + 1.0f);
-	}
+		Vector3 targetLandingPosition = earthNode.GlobalTransform.Origin + directionToEarth * (earthNode.surfaceRadius + 1.0f);
 
-	private void ApproachLandingPosition(float delta)
-	{
-		GlobalPosition = GlobalPosition.Lerp(_targetLandingPosition, landingSpeed * delta);
+		GD.Print("Calculated target landing position:", targetLandingPosition);
 
-		if (GlobalPosition.DistanceTo(_targetLandingPosition) < 0.1f)
-		{
-			GD.Print("Landed on Earth successfully.");
-			GlobalPosition = _targetLandingPosition;
-			SetPhysicsProcess(false);
-		}
+		GlobalPosition = targetLandingPosition;
+		GD.Print("Spaceship landed at:", GlobalPosition);
 	}
 }
