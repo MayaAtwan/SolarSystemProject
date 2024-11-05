@@ -84,14 +84,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.78, 0, -42.304)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.77957, -0.529122, -42.3038)
 
 [node name="Sketchfab_Scene3" parent="island" instance=ExtResource("6_2f3s7")]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -30.263, 1, 19.401)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -30.263, 0, 19.401)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.243356, -0.969773, 0.0178363, 0.969927, 0.243395, -4.51658e-10, -0.00434127, 0.0172999, 0.999841, 5.95884, 1.14869, 14.0688)
+transform = Transform3D(0.243356, -0.969773, 0.0178362, 0.956684, 0.24302, 0.160304, -0.159793, -0.0219472, 0.986907, 6.31994, -10.9349, 14.0688)
 fov = 131.828
 
 [node name="PlayerSpawn" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.33, 1.265, 13.572)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 10, 15)
 
 [node name="Sketchfab_Scene" parent="." instance=ExtResource("6_lnbkx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.85134, 0.330845, -8.88323)
+
+[node name="SpaceshipLandingPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 10, 20)

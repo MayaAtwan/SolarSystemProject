@@ -1,23 +1,27 @@
-[gd_scene load_steps=5 format=3 uid="uid://bdxfo5j4g1ifv"]
+[gd_scene load_steps=8 format=3 uid="uid://bdxfo5j4g1ifv"]
 
 [ext_resource type="Script" path="res://SpaceShip.cs" id="1_07l6j"]
+[ext_resource type="Texture2D" uid="uid://ce4uunfnrqtig" path="res://spaceship_0.jpg" id="2_gjv2o"]
+[ext_resource type="ArrayMesh" uid="uid://cqdc5lqyuckn1" path="res://spaceship.obj" id="2_h0mdq"]
+[ext_resource type="PackedScene" uid="uid://swycgq283u47" path="res://Earth.tscn" id="2_s2rgn"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r65tr"]
-albedo_color = Color(1, 0, 0.984314, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0l203"]
+albedo_texture = ExtResource("2_gjv2o")
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_k1dkr"]
-material = SubResource("StandardMaterial3D_r65tr")
-radius = 5.0
-height = 30.0
+[sub_resource type="Skin" id="Skin_xn8a0"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_sf68e"]
 
 [node name="SpaceShip" type="RigidBody3D"]
 transform = Transform3D(20, 0, 0, 0, 20, 0, 0, 0, 20, 0, 0, 0)
 script = ExtResource("1_07l6j")
+earthScene = ExtResource("2_s2rgn")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("CapsuleMesh_k1dkr")
+transform = Transform3D(7, 0, 0, 0, 7, 0, 0, 0, 7, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_0l203")
+mesh = ExtResource("2_h0mdq")
+skin = SubResource("Skin_xn8a0")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, 0, 0, 0)

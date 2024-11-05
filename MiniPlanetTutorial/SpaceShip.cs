@@ -3,14 +3,13 @@ using System;
 
 public partial class SpaceShip : RigidBody3D
 {
-	[Export] private float thrust = 10f;
-	[Export] private float rotationSpeed = 1f;
-	[Export] private StaticBody3D earthNode; 
-	[Export] private float landingDistanceThreshold = 100f;
-	
+	[Export] private float thrust = 7f;
+	[Export] private StaticBody3D earthNode;
+	[Export] private float landingDistanceThreshold = 150f;
+	[Export] private PackedScene earthScene; 
+
 	private bool _controlEnabled = true;
-	private bool _isLandedOnEarth = false; // Tracks if the spaceship is landed on Earth
-	private Vector2 _mouseDelta;
+	private bool _isLandedOnEarth = false;
 
 	public override void _Ready()
 	{
@@ -19,7 +18,7 @@ public partial class SpaceShip : RigidBody3D
 
 	public override void _Process(double delta)
 	{
-		if (!_isLandedOnEarth) // Only allow movement if not landed on Earth
+		if (_controlEnabled && !_isLandedOnEarth) 
 		{
 			ProcessSpaceshipMovement(delta);
 			CheckProximityToEarth();
@@ -33,12 +32,12 @@ public partial class SpaceShip : RigidBody3D
 
 	private void ProcessSpaceshipMovement(double delta)
 	{
-		if (!_controlEnabled || _isLandedOnEarth) return; // Stop movement if control is disabled or if landed
+		if (!_controlEnabled || _isLandedOnEarth) return; 
 
-		var movement = Vector3.Zero;
-		var forward = -GlobalTransform.Basis.Z;
-		var left = -GlobalTransform.Basis.X;
-		var up = GlobalTransform.Basis.Y;
+		Vector3 movement = Vector3.Zero;
+		Vector3 forward = -GlobalTransform.Basis.Z;
+		Vector3 left = -GlobalTransform.Basis.X;
+		Vector3 up = GlobalTransform.Basis.Y;
 
 		if (Input.IsActionPressed("Forward")) movement += forward;
 		if (Input.IsActionPressed("Backward")) movement -= forward;
@@ -48,13 +47,6 @@ public partial class SpaceShip : RigidBody3D
 		if (Input.IsActionPressed("Down")) movement -= up;
 
 		GlobalPosition += movement * thrust * (float)delta;
-
-		if (Input.IsActionPressed("Rotate"))
-		{
-			var deltaX = _mouseDelta.Y * rotationSpeed * (float)delta;
-			var deltaY = -_mouseDelta.X * rotationSpeed * (float)delta;
-			RotateObjectLocal(Vector3.Up, Mathf.DegToRad(deltaY));
-		}
 	}
 
 	private void CheckProximityToEarth()
@@ -67,7 +59,6 @@ public partial class SpaceShip : RigidBody3D
 		{
 			GD.Print("Close enough to Earth, ready to land!");
 
-			// If the player presses the E - Land button, switch to Earth scene
 			if (Input.IsActionJustPressed("Land"))
 			{
 				LandOnEarth();
@@ -79,45 +70,69 @@ public partial class SpaceShip : RigidBody3D
 	{
 		GD.Print("Attempting to land on Earth...");
 
-		// Disable movement controls and set landed state
-		_controlEnabled = false;
-		_isLandedOnEarth = true;
+		_controlEnabled = false; // Disable further control
+		_isLandedOnEarth = true; // Mark as landed
+		SetPhysicsProcess(false); // Disable physics processing to prevent any unintended movement
 
-		// Optionally play an animation or effect before transitioning
-		var animationPlayer = GetNode<AnimationPlayer>("../CanvasLayer/AnimationPlayer");
-		// animationPlayer.Play("FadeOut");
-		
-		// Delay the scene transition until after the animation completes
 		GetTree().CreateTimer(1.0).Timeout += () => TransitionToEarthScene();
 	}
 
 	private void TransitionToEarthScene()
 	{
-		string earthScenePath = "res://Earth.tscn";
-
-		if (ResourceLoader.Exists(earthScenePath))
+		if (earthScene != null)
 		{
-			GetTree().ChangeSceneToFile(earthScenePath);
-			GD.Print("Transitioning to Earth scene for landing.");
+			// Load and instance Earth scene
+			var earthInstance = earthScene.Instantiate();
+			GetParent().AddChild(earthInstance);
+
+			// Move the spaceship to Earth spawn point
+			var spaceshipLandingPoint = earthInstance.GetNodeOrNull<Marker3D>("SpaceshipLandingPoint");
+			if (spaceshipLandingPoint != null)
+			{
+				GlobalPosition = spaceshipLandingPoint.GlobalTransform.Origin;
+				GlobalRotation = spaceshipLandingPoint.GlobalTransform.Basis.GetEuler();
+				GD.Print("Transitioned to Earth scene for landing.");
+			}
+			else
+			{
+				GD.PrintErr("SpaceshipLandingPoint node not found in Earth scene.");
+			}
+
+			// Completely disable movement
+			_controlEnabled = false;
+			SetPhysicsProcess(false); 
 		}
 		else
 		{
-			GD.PrintErr("Earth scene not found at path: " + earthScenePath);
+			GD.PrintErr("Earth scene not loaded. Please set the Earth scene reference.");
 		}
 	}
 
-	public void EnterSpaceMode()
+	// Method to return to space
+	public void ReturnToSpace()
 	{
-		// Reset spaceship state for space mode
-		_isLandedOnEarth = false;
 		_controlEnabled = true;
+		_isLandedOnEarth = false;
+		SetPhysicsProcess(true); 
+
+		string solarSystemScenePath = "res://SolarSystem.tscn";
+
+		if (ResourceLoader.Exists(solarSystemScenePath))
+		{
+			GetTree().ChangeSceneToFile(solarSystemScenePath);
+			GD.Print("Returning to space...");
+		}
+		else
+		{
+			GD.PrintErr("Solar System scene not found.");
+		}
 	}
 
 	public override void _Input(InputEvent e)
 	{
-		if (e is InputEventMouseMotion mouseMotion)
+		if (e.IsActionPressed("ReturnToSpace") && _isLandedOnEarth)
 		{
-			_mouseDelta += mouseMotion.Relative;
+			ReturnToSpace();
 		}
 	}
 }
