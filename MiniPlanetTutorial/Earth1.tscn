@@ -7,7 +7,7 @@ albedo_texture = ExtResource("1_psgni")
 
 [sub_resource type="SphereMesh" id="SphereMesh_oi7gn"]
 radius = 50.0
-height = 80.0
+height = 90.0
 
 [sub_resource type="Skin" id="Skin_w5djw"]
 

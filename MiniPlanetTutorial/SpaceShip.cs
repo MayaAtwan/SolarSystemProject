@@ -72,9 +72,12 @@ public partial class SpaceShip : RigidBody3D
 	{
 		GlobalPosition = GlobalPosition.Lerp(_targetLandingPosition, landingSpeed * delta);
 
-		if (GlobalPosition.DistanceTo(_targetLandingPosition) < 0.1f)
+		GD.Print("Approaching landing position. Current Position:", GlobalPosition);
+
+		if (GlobalPosition.DistanceTo(_targetLandingPosition) < 0.05f)
 		{
 			GD.Print("Landed on Earth successfully.");
+			GD.Print("Final Landing Position:", GlobalPosition);
 			GlobalPosition = _targetLandingPosition;
 			SetPhysicsProcess(false);
 		}
@@ -119,5 +122,7 @@ public partial class SpaceShip : RigidBody3D
 		_targetLandingPosition = earthNode.GlobalTransform.Origin + directionToEarth * (earthNode.surfaceRadius + 1.0f);
 
 		GD.Print("Calculated target landing position:", _targetLandingPosition);
+		GD.Print("Earth's position:", earthNode.GlobalTransform.Origin);
+		GD.Print("Distance from Earth's surface:", _targetLandingPosition.DistanceTo(earthNode.GlobalTransform.Origin));
 	}
 }
