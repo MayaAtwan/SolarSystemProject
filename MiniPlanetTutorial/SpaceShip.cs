@@ -30,26 +30,26 @@ public partial class SpaceShip : RigidBody3D
 			}
 		}
 	}
-private void ProcessSpaceshipMovement(double delta)
-{
-	if (!_controlEnabled || _isLandedOnEarth) return;
 
-	Vector3 movement = Vector3.Zero;
-	Vector3 forward = -GlobalTransform.Basis.Z;
-	Vector3 left = -GlobalTransform.Basis.X;
-	Vector3 up = GlobalTransform.Basis.Y;
+	private void ProcessSpaceshipMovement(double delta)
+	{
+		if (!_controlEnabled || _isLandedOnEarth) return;
 
-	if (Input.IsActionPressed("Forward")) movement += forward;
-	if (Input.IsActionPressed("Backward")) movement -= forward;
-	if (Input.IsActionPressed("Left")) movement += left;
-	if (Input.IsActionPressed("Right")) movement -= left;
-	if (Input.IsActionPressed("Up")) movement += up;
-	if (Input.IsActionPressed("Down")) movement -= up;
+		Vector3 movement = Vector3.Zero;
+		Vector3 forward = -GlobalTransform.Basis.Z;
+		Vector3 left = -GlobalTransform.Basis.X;
+		Vector3 up = GlobalTransform.Basis.Y;
 
-	GlobalPosition += movement * thrust * (float)delta;
-}
+		if (Input.IsActionPressed("Forward")) movement += forward;
+		if (Input.IsActionPressed("Backward")) movement -= forward;
+		if (Input.IsActionPressed("Left")) movement += left;
+		if (Input.IsActionPressed("Right")) movement -= left;
+		if (Input.IsActionPressed("Up")) movement += up;
+		if (Input.IsActionPressed("Down")) movement -= up;
 
-	// This function allows SolarSystem to set earthNode directly
+		GlobalPosition += movement * thrust * (float)delta;
+	}
+
 	public void SetEarthNode(Earth1 earth)
 	{
 		earthNode = earth;
@@ -67,18 +67,18 @@ private void ProcessSpaceshipMovement(double delta)
 			ApproachLandingPosition((float)delta);
 		}
 	}
+
 	private void ApproachLandingPosition(float delta)
-{
-	GlobalPosition = GlobalPosition.Lerp(_targetLandingPosition, landingSpeed * delta);
-
-	if (GlobalPosition.DistanceTo(_targetLandingPosition) < 0.1f)
 	{
-		GD.Print("Landed on Earth successfully.");
-		GlobalPosition = _targetLandingPosition;
-		SetPhysicsProcess(false);
-	}
-}
+		GlobalPosition = GlobalPosition.Lerp(_targetLandingPosition, landingSpeed * delta);
 
+		if (GlobalPosition.DistanceTo(_targetLandingPosition) < 0.1f)
+		{
+			GD.Print("Landed on Earth successfully.");
+			GlobalPosition = _targetLandingPosition;
+			SetPhysicsProcess(false);
+		}
+	}
 
 	private void CheckProximityToEarth()
 	{
@@ -116,11 +116,8 @@ private void ProcessSpaceshipMovement(double delta)
 		AngularVelocity = Vector3.Zero;
 
 		Vector3 directionToEarth = (earthNode.GlobalTransform.Origin - GlobalTransform.Origin).Normalized();
-		Vector3 targetLandingPosition = earthNode.GlobalTransform.Origin + directionToEarth * (earthNode.surfaceRadius + 1.0f);
+		_targetLandingPosition = earthNode.GlobalTransform.Origin + directionToEarth * (earthNode.surfaceRadius + 1.0f);
 
-		GD.Print("Calculated target landing position:", targetLandingPosition);
-
-		GlobalPosition = targetLandingPosition;
-		GD.Print("Spaceship landed at:", GlobalPosition);
+		GD.Print("Calculated target landing position:", _targetLandingPosition);
 	}
 }
