@@ -83,33 +83,39 @@ public partial class Player : CharacterBody3D
 			}
 		}
 	}
-
+	
 	private void ProcessEarthMovement(double delta)
+{
+	if (_earthNode == null) return;
+
+	Vector3 toEarthCenter = _earthNode.GlobalTransform.Origin - GlobalPosition;
+	Vector3 up = toEarthCenter.Normalized();
+
+	LookAtFromPosition(GlobalPosition, GlobalPosition + up, -GlobalTransform.Basis.Z);
+
+	var movement = Vector3.Zero;
+	var forward = -GlobalTransform.Basis.Z;
+	var left = -GlobalTransform.Basis.X;
+
+	if (Input.IsActionPressed("Forward")) movement += forward;
+	if (Input.IsActionPressed("Backward")) movement -= forward;
+	if (Input.IsActionPressed("Left")) movement += left;
+	if (Input.IsActionPressed("Right")) movement -= left;
+
+	_velocity = movement.Normalized() * _walkSpeed * (float)delta;
+	_velocity = _velocity - (_velocity.Dot(up)) * up;
+	GlobalPosition += _velocity;
+	float targetDistance = _earthNode.surfaceRadius + 1.0f;
+	float currentDistance = GlobalPosition.DistanceTo(_earthNode.GlobalTransform.Origin);
+
+	if (Math.Abs(currentDistance - targetDistance) > 0.05f) 
 	{
-		if (_earthNode == null) return;
-
-		Vector3 toEarthCenter = _earthNode.GlobalTransform.Origin - GlobalPosition;
-		Vector3 up = toEarthCenter.Normalized();
-		LookAtFromPosition(GlobalPosition, GlobalPosition + up, -GlobalTransform.Basis.Z);
-
-		var movement = Vector3.Zero;
-		var forward = -GlobalTransform.Basis.Z;
-		var left = -GlobalTransform.Basis.X;
-
-		if (Input.IsActionPressed("Forward")) movement += forward;
-		if (Input.IsActionPressed("Backward")) movement -= forward;
-		if (Input.IsActionPressed("Left")) movement += left;
-		if (Input.IsActionPressed("Right")) movement -= left;
-
-		_velocity = movement.Normalized() * _walkSpeed * (float)delta;
-		_velocity = _velocity - (_velocity.Dot(up)) * up;
-		GlobalPosition += _velocity;
-		float targetDistance = _earthNode.surfaceRadius + 1.0f;
-		Vector3 stabilizedPosition = _earthNode.GlobalTransform.Origin + up * targetDistance;
-		GlobalPosition = GlobalPosition.Lerp(stabilizedPosition, 0.1f);
-
-		GD.Print("Player Position:", GlobalPosition, "Is on Earth's surface.");
+		Vector3 correctedPosition = _earthNode.GlobalTransform.Origin + up * targetDistance;
+		GlobalPosition = GlobalPosition.Lerp(correctedPosition, 0.1f); 
 	}
+
+	GD.Print("Player Position:", GlobalPosition, "Is on Earth's surface.");
+}
 
 	private void ProcessSpaceMovement(double delta)
 	{
