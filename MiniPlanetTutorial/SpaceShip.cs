@@ -67,21 +67,22 @@ public partial class SpaceShip : RigidBody3D
 			ApproachLandingPosition((float)delta);
 		}
 	}
+private void ApproachLandingPosition(float delta)
+{
+	GlobalPosition = GlobalPosition.Lerp(_targetLandingPosition, landingSpeed * delta);
+	GD.Print("Approaching landing position. Current Position:", GlobalPosition);
 
-	private void ApproachLandingPosition(float delta)
+	if (GlobalPosition.DistanceTo(_targetLandingPosition) < 0.05f && LinearVelocity.Length() < 0.01f)
 	{
-		GlobalPosition = GlobalPosition.Lerp(_targetLandingPosition, landingSpeed * delta);
-
-		GD.Print("Approaching landing position. Current Position:", GlobalPosition);
-
-		if (GlobalPosition.DistanceTo(_targetLandingPosition) < 0.05f)
-		{
-			GD.Print("Landed on Earth successfully.");
-			GD.Print("Final Landing Position:", GlobalPosition);
-			GlobalPosition = _targetLandingPosition;
-			SetPhysicsProcess(false);
-		}
+		GD.Print("Landed on Earth successfully at Final Position:", GlobalPosition);
+		GlobalPosition = _targetLandingPosition;
+		LinearVelocity = Vector3.Zero;
+		AngularVelocity = Vector3.Zero;
+		SetPhysicsProcess(false);
+		_isLandedOnEarth = false; // Stop further updates after landing
 	}
+}
+
 
 	private void CheckProximityToEarth()
 	{

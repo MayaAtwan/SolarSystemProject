@@ -3,7 +3,7 @@ using System;
 
 public partial class Earth1 : Node3D
 {
-	[Export] public float surfaceRadius = 50f; // Adjust as needed
+	[Export] public float surfaceRadius = 50f;
 	[Export] private float _surfaceGravity = 9.8f;
 
 	public float StandardGravitationalParameter { get; private set; }

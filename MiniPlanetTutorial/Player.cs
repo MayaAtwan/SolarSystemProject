@@ -21,28 +21,22 @@ public partial class Player : CharacterBody3D
 	private SpaceShip _spaceship;
 	private Vector3 _velocity = Vector3.Zero;
 
+	private Earth1 _earthNode;
+
 	public override void _Ready()
 	{
 		GD.Print("Player Ready");
-		base._Ready();
-
 		_spaceship = GetParent().GetNode<SpaceShip>("SpaceShip");
 
-		if (_spaceship == null)
+		var solarSystem = GetParent() as SolarSystem;
+		if (solarSystem != null)
 		{
-			GD.PrintErr("Spaceship node not found. Check if 'SpaceShip' exists in the scene tree.");
-		}
-		else
-		{
-			GD.Print("Spaceship found: " + _spaceship.Name);
-			GlobalPosition = _spaceship.GlobalTransform.Origin;
+			_earthNode = solarSystem.EarthNode;
 		}
 	}
 
 	public override void _Process(double delta)
 	{
-		base._Process(delta);
-
 		if (_isInsideSpaceship)
 		{
 			FollowSpaceship(delta);
@@ -64,11 +58,30 @@ public partial class Player : CharacterBody3D
 		}
 	}
 
-	private void FollowSpaceship(double delta)
+	private void ProcessEarthMovement(double delta)
 	{
-		if (_spaceship == null) return;
-		GlobalPosition = _spaceship.GlobalPosition;
-		GlobalRotation = _spaceship.GlobalRotation;
+		if (_earthNode == null) return;
+
+		Vector3 toEarthCenter = _earthNode.GlobalTransform.Origin - GlobalPosition;
+		Vector3 up = toEarthCenter.Normalized();
+
+		LookAtFromPosition(GlobalPosition, GlobalPosition + up, -GlobalTransform.Basis.Z);
+
+		var movement = Vector3.Zero;
+		var forward = -GlobalTransform.Basis.Z;
+		var left = -GlobalTransform.Basis.X;
+
+		if (Input.IsActionPressed("Forward")) movement += forward;
+		if (Input.IsActionPressed("Backward")) movement -= forward;
+		if (Input.IsActionPressed("Left")) movement += left;
+		if (Input.IsActionPressed("Right")) movement -= left;
+
+		_velocity = movement.Normalized() * _walkSpeed * (float)delta;
+		_velocity = _velocity - (_velocity.Dot(up)) * up;
+		GlobalPosition += _velocity;
+		GlobalPosition = _earthNode.GlobalTransform.Origin + toEarthCenter.Normalized() * (_earthNode.surfaceRadius + 1.0f);
+
+		GD.Print("Player Position:", GlobalPosition, "Is on Earth's surface.");
 	}
 
 	private void ProcessSpaceMovement(double delta)
@@ -86,57 +99,27 @@ public partial class Player : CharacterBody3D
 		if (Input.IsActionPressed("Down")) movement -= up;
 
 		_velocity = movement.Normalized() * _spaceThrust * (float)delta;
+		GlobalPosition += _velocity;
 
-		GlobalPosition += _velocity; // Directly update position in space
+		GD.Print("Player Position in space:", GlobalPosition);
 	}
 
-	private void ProcessEarthMovement(double delta)
+	private void FollowSpaceship(double delta)
 	{
-		var movement = Vector3.Zero;
-		var forward = -GlobalTransform.Basis.Z;
-		var left = -GlobalTransform.Basis.X;
-
-		if (Input.IsActionPressed("Forward")) movement += forward;
-		if (Input.IsActionPressed("Backward")) movement -= forward;
-		if (Input.IsActionPressed("Left")) movement += left;
-		if (Input.IsActionPressed("Right")) movement -= left;
-
-		_velocity = movement.Normalized() * _walkSpeed * (float)delta;
-		
-		// Keep the player grounded by ignoring Y-axis changes
-		_velocity.Y = 0;
-		
-		GlobalPosition += _velocity; // Directly update position on Earth
+		if (_spaceship == null) return;
+		GlobalPosition = _spaceship.GlobalPosition;
+		GlobalRotation = _spaceship.GlobalRotation;
+		GD.Print("Player following spaceship at position:", GlobalPosition);
 	}
 
 	private void ExitSpaceship()
 	{
 		_isInsideSpaceship = false;
 		_onEarth = true;
-
 		GlobalPosition = _spaceship.GlobalTransform.Origin + _spaceship.GlobalTransform.Basis.Z * 5f;
-		GD.Print("Player has exited the spaceship");
-
-		//_spaceship.SetControlEnabled(false);
-
+		GD.Print("Player has exited the spaceship at position:", GlobalPosition);
 		_camera.Current = true;
 		Input.MouseMode = Input.MouseModeEnum.Captured;
-	}
-
-	public void EnterSpaceMode()
-	{
-		_onEarth = false;
-		_isInsideSpaceship = false;
 		_velocity = Vector3.Zero;
-	}
-
-	public override void _Input(InputEvent e)
-	{
-		base._Input(e);
-
-		if (e is InputEventMouseMotion mouseMotion)
-		{
-			_mouseDelta += mouseMotion.Relative;
-		}
 	}
 }
