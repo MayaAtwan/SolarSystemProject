@@ -12,18 +12,28 @@ public partial class SolarSystem : Node3D
 	{
 		Instance = this;
 		GD.Print("SolarSystem.Instance set");
-		EarthNode = GetNode<Earth1>("Earth1");
+		
+		EarthNode = GetNodeOrNull<Earth1>("Earth1"); // Use GetNodeOrNull to avoid errors if not found
 
 		if (EarthNode == null)
 		{
 			GD.PrintErr("Earth node not found in SolarSystem.");
 		}
-		_player = GetNode<Player>("Player");
-		_spaceship = GetNode<SpaceShip>("SpaceShip");
-
-		if (_player == null || _spaceship == null)
+		else
 		{
-			GD.PrintErr("Player or SpaceShip node not found in SolarSystem.");
+			GD.Print("Earth node found in SolarSystem.");
+		}
+
+		_player = GetNodeOrNull<Player>("Player");
+		_spaceship = GetNodeOrNull<SpaceShip>("SpaceShip");
+
+		if (_player == null)
+		{
+			GD.PrintErr("Player node not found in SolarSystem.");
+		}
+		if (_spaceship == null)
+		{
+			GD.PrintErr("SpaceShip node not found in SolarSystem.");
 		}
 		else
 		{

@@ -15,6 +15,11 @@ public partial class SpaceShip : RigidBody3D
 	public override void _Ready()
 	{
 		GD.Print("Spaceship Ready");
+		CallDeferred(nameof(InitializeSpaceship));
+	}
+
+	private void InitializeSpaceship()
+	{
 		var solarSystem = GetParent() as SolarSystem;
 
 		if (solarSystem == null)
@@ -28,7 +33,16 @@ public partial class SpaceShip : RigidBody3D
 			{
 				GD.PrintErr("Earth node not found in SolarSystem.");
 			}
+			else
+			{
+				GD.Print("Earth node found in SolarSystem.");
+			}
 		}
+	}
+	public void SetEarthNode(Earth1 earth)
+	{
+		earthNode = earth;
+		GD.Print("Earth node set in SpaceShip.");
 	}
 
 	private void ProcessSpaceshipMovement(double delta)
@@ -50,11 +64,6 @@ public partial class SpaceShip : RigidBody3D
 		GlobalPosition += movement * thrust * (float)delta;
 	}
 
-	public void SetEarthNode(Earth1 earth)
-	{
-		earthNode = earth;
-	}
-
 	public override void _Process(double delta)
 	{
 		if (_controlEnabled && !_isLandedOnEarth)
@@ -67,22 +76,22 @@ public partial class SpaceShip : RigidBody3D
 			ApproachLandingPosition((float)delta);
 		}
 	}
-private void ApproachLandingPosition(float delta)
-{
-	GlobalPosition = GlobalPosition.Lerp(_targetLandingPosition, landingSpeed * delta);
-	GD.Print("Approaching landing position. Current Position:", GlobalPosition);
 
-	if (GlobalPosition.DistanceTo(_targetLandingPosition) < 0.05f && LinearVelocity.Length() < 0.01f)
+	private void ApproachLandingPosition(float delta)
 	{
-		GD.Print("Landed on Earth successfully at Final Position:", GlobalPosition);
-		GlobalPosition = _targetLandingPosition;
-		LinearVelocity = Vector3.Zero;
-		AngularVelocity = Vector3.Zero;
-		SetPhysicsProcess(false);
-		_isLandedOnEarth = false; // Stop further updates after landing
-	}
-}
+		GlobalPosition = GlobalPosition.Lerp(_targetLandingPosition, landingSpeed * delta);
+		GD.Print("Approaching landing position. Current Position:", GlobalPosition);
 
+		if (GlobalPosition.DistanceTo(_targetLandingPosition) < 0.05f && LinearVelocity.Length() < 0.01f)
+		{
+			GD.Print("Landed on Earth successfully at Final Position:", GlobalPosition);
+			GlobalPosition = _targetLandingPosition;
+			LinearVelocity = Vector3.Zero;
+			AngularVelocity = Vector3.Zero;
+			SetPhysicsProcess(false);
+			_isLandedOnEarth = false;
+		}
+	}
 
 	private void CheckProximityToEarth()
 	{
