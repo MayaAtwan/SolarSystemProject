@@ -90,7 +90,6 @@ public partial class Player : CharacterBody3D
 
 		Vector3 toEarthCenter = _earthNode.GlobalTransform.Origin - GlobalPosition;
 		Vector3 up = toEarthCenter.Normalized();
-
 		LookAtFromPosition(GlobalPosition, GlobalPosition + up, -GlobalTransform.Basis.Z);
 
 		var movement = Vector3.Zero;
@@ -105,9 +104,9 @@ public partial class Player : CharacterBody3D
 		_velocity = movement.Normalized() * _walkSpeed * (float)delta;
 		_velocity = _velocity - (_velocity.Dot(up)) * up;
 		GlobalPosition += _velocity;
-
-		// Ensure player stays on Earth's surface
-		GlobalPosition = _earthNode.GlobalTransform.Origin + toEarthCenter.Normalized() * (_earthNode.surfaceRadius + 1.0f);
+		float targetDistance = _earthNode.surfaceRadius + 1.0f;
+		Vector3 stabilizedPosition = _earthNode.GlobalTransform.Origin + up * targetDistance;
+		GlobalPosition = GlobalPosition.Lerp(stabilizedPosition, 0.1f);
 
 		GD.Print("Player Position:", GlobalPosition, "Is on Earth's surface.");
 	}

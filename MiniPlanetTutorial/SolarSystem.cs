@@ -13,7 +13,7 @@ public partial class SolarSystem : Node3D
 		Instance = this;
 		GD.Print("SolarSystem.Instance set");
 		
-		EarthNode = GetNodeOrNull<Earth1>("Earth1"); // Use GetNodeOrNull to avoid errors if not found
+		EarthNode = GetNodeOrNull<Earth1>("Earth1"); 
 
 		if (EarthNode == null)
 		{
