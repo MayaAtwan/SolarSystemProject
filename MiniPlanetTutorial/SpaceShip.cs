@@ -34,7 +34,7 @@ public partial class SpaceShip : RigidBody3D
 			earthNode = solarSystem.EarthNode;
 			if (earthNode == null)
 			{
-				GD.PrintErr("Earth node not found in SolarSystem.");
+				GD.PrintErr("Earth node not found in SolarSystem.spaceship cs");
 			}
 			else
 			{

@@ -10,6 +10,8 @@ public partial class Earth1 : Node3D
 
 	public override void _Ready()
 	{
+		GD.Print("Scene Tree: ", GetTree().Root.ToString());
+
 		StandardGravitationalParameter = _surfaceGravity * surfaceRadius * surfaceRadius;
 		GD.Print("Earth1 initialized with gravity parameter: " + StandardGravitationalParameter);
 	}
