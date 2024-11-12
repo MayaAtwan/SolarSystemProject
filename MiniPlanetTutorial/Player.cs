@@ -26,39 +26,24 @@ public partial class Player : CharacterBody3D
 	public override void _Ready()
 	{
 		GD.Print("Player Ready");
-		CallDeferred(nameof(InitializePlayer));
-	}
 
-	private void InitializePlayer()
-	{
-		_spaceship = GetParent().GetNodeOrNull<SpaceShip>("SpaceShip");
-
-		if (_spaceship == null)
-		{
-			GD.PrintErr("Spaceship node not found. Check if 'SpaceShip' exists in the scene tree.");
-		}
-		else
-		{
-			GD.Print("Spaceship found: " + _spaceship.Name);
-		}
-
-		var solarSystem = GetParent() as SolarSystem;
+		var solarSystem = GetParent<SolarSystem>();
 		if (solarSystem != null)
 		{
-			_earthNode = solarSystem.EarthNode;
-			if (_earthNode == null)
-			{
-				GD.PrintErr("Earth node not found in SolarSystem.player cs");
-			}
-			else
-			{
-				GD.Print("Earth node found and assigned in Player.");
-			}
+			solarSystem.Connect("InitializationComplete", new Callable(this, nameof(OnSolarSystemInitialized)));
 		}
 		else
 		{
-			GD.PrintErr("SolarSystem parent not found. Ensure this script is a child of SolarSystem.");
+			GD.PrintErr("SolarSystem parent not found for Player.");
 		}
+	}
+
+	private void OnSolarSystemInitialized()
+	{
+		GD.Print("SolarSystem initialization complete. Setting EarthNode in Player...");
+		var solarSystem = GetParent<SolarSystem>();
+		_earthNode = solarSystem?.EarthNode;
+		GD.Print("Earth node set in Player: ", _earthNode != null);
 	}
 
 	public override void _Process(double delta)

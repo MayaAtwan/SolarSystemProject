@@ -3,57 +3,52 @@ using System;
 
 public partial class SolarSystem : Node3D
 {
+	[Signal] 
+	public delegate void InitializationCompleteEventHandler();
+
 	private Player _player;
 	private SpaceShip _spaceship;
 	public static SolarSystem Instance { get; private set; }
 	public Earth1 EarthNode { get; private set; }
 
-public override void _Ready()
-{
-	CallDeferred(nameof(InitializeSolarSystem)); // Use CallDeferred to delay initialization
-}
-
-private void InitializeSolarSystem()
-{
-	Instance = this;
-	GD.Print("SolarSystem.Instance set");
-
-	EarthNode = GetNodeOrNull<Earth1>("Earth1");
-
-	if (EarthNode == null)
+	public override void _Ready()
 	{
-		GD.PrintErr("Earth node not found in SolarSystem.solar system");
-	}
-	else
-	{
-		GD.Print("Earth node found in SolarSystem.");
+		GD.Print("SolarSystem is initializing...");
+		InitializeSolarSystem(); 
 	}
 
-	_player = GetNodeOrNull<Player>("Player");
-	_spaceship = GetNodeOrNull<SpaceShip>("SpaceShip");
+	private void InitializeSolarSystem()
+	{
+		Instance = this;
+		GD.Print("SolarSystem.Instance set");
+		EarthNode = GetNodeOrNull<Earth1>("Earth1");
+		GD.Print("EarthNode found: ", EarthNode != null);
+		_player = GetNodeOrNull<Player>("Player");
+		_spaceship = GetNodeOrNull<SpaceShip>("SpaceShip");
 
-	if (_player == null)
-	{
-		GD.PrintErr("Player node not found in SolarSystem.");
-	}
-	if (_spaceship == null)
-	{
-		GD.PrintErr("SpaceShip node not found in SolarSystem.");
-	}
-	else
-	{
-		_spaceship.SetEarthNode(EarthNode);
-	}
-}
-
-
-	private T FindChild<T>() where T : Node
-	{
-		foreach (Node child in GetChildren())
+		if (_spaceship != null)
 		{
-			if (child is T node)
-				return node;
+			GD.Print("Setting EarthNode in SpaceShip...");
+			_spaceship.SetEarthNode(EarthNode);
 		}
-		return null;
+
+		if (_player != null)
+		{
+			GD.Print("Player found: Setting up Player...");
+		}
+
+		EmitSignal(nameof(InitializationComplete));
+		GD.Print("SolarSystem initialization complete.");
+		
+		
+		GD.Print("Earth1 Position: ", EarthNode.GlobalTransform.Origin);
+GD.Print("Player Position: ", _player?.GlobalTransform.Origin);
+GD.Print("SpaceShip Position: ", _spaceship?.GlobalTransform.Origin);
+
+	}
+
+	public override void _PhysicsProcess(double delta)
+	{
+		base._PhysicsProcess(delta);
 	}
 }

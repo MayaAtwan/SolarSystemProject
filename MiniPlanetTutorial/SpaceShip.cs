@@ -9,38 +9,31 @@ public partial class SpaceShip : RigidBody3D
 
 	private Earth1 earthNode;
 	private bool _controlEnabled = true;
-	private bool _isLanding = false; 
-	private bool _isLandingCompleted = false; 
+	private bool _isLanding = false;
+	private bool _isLandingCompleted = false;
 	private Vector3 _targetLandingPosition;
 
 	public override void _Ready()
 	{
-		InitializeSpaceShip();
-	}
-	private void InitializeSpaceShip()
-	{
-		GD.Print("Initializing SpaceShip...");
-		_controlEnabled = true;
-		_isLanding = false;
-		_isLandingCompleted = false;
+		GD.Print("SpaceShip Ready");
 
-		var solarSystem = GetParent() as SolarSystem;
-		if (solarSystem == null)
+		var solarSystem = GetParent<SolarSystem>();
+		if (solarSystem != null)
 		{
-			GD.PrintErr("SolarSystem parent not found.");
+			solarSystem.Connect("InitializationComplete", new Callable(this, nameof(OnSolarSystemInitialized)));
 		}
 		else
 		{
-			earthNode = solarSystem.EarthNode;
-			if (earthNode == null)
-			{
-				GD.PrintErr("Earth node not found in SolarSystem.spaceship cs");
-			}
-			else
-			{
-				GD.Print("Earth node set in SpaceShip.");
-			}
+			GD.PrintErr("SolarSystem parent not found for SpaceShip.");
 		}
+	}
+
+	private void OnSolarSystemInitialized()
+	{
+		GD.Print("SolarSystem initialization complete. Setting EarthNode in SpaceShip...");
+		var solarSystem = GetParent<SolarSystem>();
+		earthNode = solarSystem?.EarthNode;
+		GD.Print("Earth node set in SpaceShip: ", earthNode != null);
 	}
 
 	private void ProcessSpaceshipMovement(double delta)
@@ -61,12 +54,12 @@ public partial class SpaceShip : RigidBody3D
 
 		GlobalPosition += movement * thrust * (float)delta;
 	}
-	public void SetEarthNode(Earth1 earth)
-{
-	earthNode = earth;
-	GD.Print("Earth node set in SpaceShip.");
-}
 
+	public void SetEarthNode(Earth1 earth)
+	{
+		earthNode = earth;
+		GD.Print("Earth node set in SpaceShip.");
+	}
 
 	public override void _Process(double delta)
 	{
@@ -144,9 +137,15 @@ public partial class SpaceShip : RigidBody3D
 
 	public void ResetSpaceShip()
 	{
-		InitializeSpaceShip();
+		GD.Print("Resetting SpaceShip...");
+		_controlEnabled = true;
+		_isLanding = false;
+		_isLandingCompleted = false;
+
 		GlobalPosition = Vector3.Zero;
 		LinearVelocity = Vector3.Zero;
 		AngularVelocity = Vector3.Zero;
+
+		GD.Print("SpaceShip reset completed.");
 	}
 }
