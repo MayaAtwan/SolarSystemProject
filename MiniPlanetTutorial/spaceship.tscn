@@ -26,6 +26,6 @@ transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, 0, 0, 0)
 shape = SubResource("CapsuleShape3D_sf68e")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -0.05, -0.6, 0.4)
+transform = Transform3D(0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -42.4941, -13.8027, -20.9494)
 
 [node name="RayCast3D" type="RayCast3D" parent="."]

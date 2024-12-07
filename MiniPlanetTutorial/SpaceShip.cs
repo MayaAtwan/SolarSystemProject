@@ -3,56 +3,60 @@ using System;
 
 public partial class SpaceShip : RigidBody3D
 {
-	[Export] private float thrust = 20f;
-	[Export] private float landingDistanceThreshold = 150f;
-	[Export] private float landingSpeed = 1f;
+	[Export] private float baseThrust = 700f; // Base thrust
+	[Export] private float fuel = 100000f; // Starting fuel
+	[Export] private float fuelConsumptionRate = 0.1f; // Fuel consumed per second of thrust
+	[Export] private float maxSpeed = 1000f; // Maximum speed
+	[Export] private float rotationSpeed = 1f; // Speed of rotation (yaw, pitch, roll)
+	[Export] private float mass = 100f; // Spaceship mass
+	[Export] private float gravityScale = 1f; // Adjust gravity effect
+	[Export] private float dragCoefficient = 0.01f; // Simulate atmospheric drag
 
-	private Earth1 earthNode;
+	[Export] private Camera3D camera;
+	[Export] private Label hudLabel; // HUD label for displaying fuel and gravity
+
+	private Earth1 earthNode; 
+	private Vector3 velocity = Vector3.Zero; 
+	private Vector3 totalGravity = Vector3.Zero; // Total gravity acting on the spaceship
+	private float currentThrust = 0f; // Dynamic thrust
 	private bool _controlEnabled = true;
-	private bool _isLanding = false;
-	private bool _isLandingCompleted = false;
-	private Vector3 _targetLandingPosition;
 
 	public override void _Ready()
 	{
-		GD.Print("SpaceShip Ready");
+		GD.Print("Spaceship Ready");
+		CallDeferred(nameof(InitializeSpaceship));
 
-		var solarSystem = GetParent<SolarSystem>();
-		if (solarSystem != null)
+		if (hudLabel == null)
 		{
-			solarSystem.Connect("InitializationComplete", new Callable(this, nameof(OnSolarSystemInitialized)));
+			GD.PrintErr("HUDLabel is not assigned. Assign a Label node in the inspector.");
+		}
+	}
+
+	private void InitializeSpaceship()
+	{
+		var solarSystem = GetParent() as SolarSystem;
+
+		if (solarSystem == null)
+		{
+			GD.PrintErr("SolarSystem parent not found.");
 		}
 		else
 		{
-			GD.PrintErr("SolarSystem parent not found for SpaceShip.");
+			earthNode = solarSystem.EarthNode;
+			if (earthNode == null)
+			{
+				GD.PrintErr("Earth node not found in SolarSystem.");
+			}
+			else
+			{
+				GD.Print("Earth node found in SolarSystem.");
+			}
 		}
-	}
 
-	private void OnSolarSystemInitialized()
-	{
-		GD.Print("SolarSystem initialization complete. Setting EarthNode in SpaceShip...");
-		var solarSystem = GetParent<SolarSystem>();
-		earthNode = solarSystem?.EarthNode;
-		GD.Print("Earth node set in SpaceShip: ", earthNode != null);
-	}
-
-	private void ProcessSpaceshipMovement(double delta)
-	{
-		if (!_controlEnabled || _isLanding || _isLandingCompleted) return;
-
-		Vector3 movement = Vector3.Zero;
-		Vector3 forward = -GlobalTransform.Basis.Z;
-		Vector3 left = -GlobalTransform.Basis.X;
-		Vector3 up = GlobalTransform.Basis.Y;
-
-		if (Input.IsActionPressed("Forward")) movement += forward;
-		if (Input.IsActionPressed("Backward")) movement -= forward;
-		if (Input.IsActionPressed("Left")) movement += left;
-		if (Input.IsActionPressed("Right")) movement -= left;
-		if (Input.IsActionPressed("Up")) movement += up;
-		if (Input.IsActionPressed("Down")) movement -= up;
-
-		GlobalPosition += movement * thrust * (float)delta;
+		if (camera == null)
+		{
+			GD.PrintErr("Camera is not assigned. Attach a Camera3D to the spaceship.");
+		}
 	}
 
 	public void SetEarthNode(Earth1 earth)
@@ -61,91 +65,145 @@ public partial class SpaceShip : RigidBody3D
 		GD.Print("Earth node set in SpaceShip.");
 	}
 
-	public override void _Process(double delta)
+	private void ProcessSpaceshipMovement(double delta)
 	{
-		if (_controlEnabled && !_isLanding && !_isLandingCompleted)
+		if (!_controlEnabled)
 		{
-			ProcessSpaceshipMovement(delta);
-			CheckProximityToEarth();
-		}
-		else if (_isLanding && !_isLandingCompleted)
-		{
-			ApproachLandingPosition((float)delta);
-		}
-	}
-
-	private void ApproachLandingPosition(float delta)
-	{
-		if (_isLandingCompleted) return;
-
-		GlobalPosition = GlobalPosition.Lerp(_targetLandingPosition, landingSpeed * delta);
-		GD.Print("Approaching landing position. Current Position:", GlobalPosition);
-
-		if (GlobalPosition.DistanceTo(_targetLandingPosition) < 0.05f && LinearVelocity.Length() < 0.01f)
-		{
-			GD.Print("Landed on Earth successfully at Final Position:", GlobalPosition);
-			GlobalPosition = _targetLandingPosition;
-			LinearVelocity = Vector3.Zero;
-			AngularVelocity = Vector3.Zero;
-			_isLandingCompleted = true;
-			SetPhysicsProcess(false);
-		}
-	}
-
-	private void CheckProximityToEarth()
-	{
-		if (earthNode == null)
-		{
-			GD.Print("Earth node is null, cannot check proximity.");
+			GD.Print("Movement is disabled.");
 			return;
 		}
 
-		float distanceToEarth = GlobalTransform.Origin.DistanceTo(earthNode.GlobalTransform.Origin);
-		GD.Print("Distance to Earth:", distanceToEarth);
+		// Rotation Controls
+		ProcessRotation(delta);
 
-		if (distanceToEarth <= landingDistanceThreshold)
+		// Thrust Controls
+		Vector3 thrustDirection = Vector3.Zero;
+
+		if (fuel > 0)
 		{
-			GD.Print("Close enough to Earth, ready to land!");
-			if (Input.IsActionJustPressed("Land"))
+			if (Input.IsActionPressed("Forward"))
 			{
-				LandOnEarth();
+				GD.Print("Forward input detected!");
+				thrustDirection += -GlobalTransform.Basis.Z;
+				fuel -= fuelConsumptionRate * baseThrust * (float)delta;
+			}
+
+			if (Input.IsActionPressed("Backward"))
+			{
+				GD.Print("Backward input detected!");
+				thrustDirection += GlobalTransform.Basis.Z;
+				fuel -= fuelConsumptionRate * baseThrust * (float)delta;
 			}
 		}
 		else
 		{
-			GD.Print("Not within landing distance of Earth.");
+			GD.Print("No fuel! The spaceship cannot move.");
+		}
+
+		// Normalize thrust direction and calculate thrust force
+		if (thrustDirection != Vector3.Zero)
+		{
+			thrustDirection = thrustDirection.Normalized();
+			currentThrust = baseThrust;
+		}
+		else
+		{
+			currentThrust = 0f;
+		}
+
+		Vector3 thrustForce = thrustDirection * currentThrust;
+		GD.Print($"Thrust Direction: {thrustDirection}, Thrust Force: {thrustForce}");
+
+		// Calculate acceleration
+		Vector3 acceleration = thrustForce / mass;
+
+		// Apply gravity and drag
+		ApplyGravity(delta);
+		ApplyDrag(delta);
+
+		// Update velocity and position
+		velocity += acceleration * (float)delta;
+		velocity = velocity.LimitLength(maxSpeed);
+		GlobalPosition += velocity * (float)delta;
+
+		// Update camera
+		UpdateCamera();
+
+		// Update HUD
+		UpdateHUD();
+
+		GD.Print($"Velocity: {velocity.Length()} m/s, Current Thrust: {currentThrust}, Fuel: {fuel:F2}");
+		if (fuel < 10f && fuel > 0f)
+		{
+			GD.Print("Warning: Fuel critically low!");
 		}
 	}
 
-	private void LandOnEarth()
+	private void ProcessRotation(double delta)
 	{
-		GD.Print("Landing on Earth...");
-
-		_controlEnabled = false;
-		_isLanding = true;
-
-		LinearVelocity = Vector3.Zero;
-		AngularVelocity = Vector3.Zero;
-
-		Vector3 directionToEarth = (earthNode.GlobalTransform.Origin - GlobalTransform.Origin).Normalized();
-		_targetLandingPosition = earthNode.GlobalTransform.Origin + directionToEarth * (earthNode.surfaceRadius + 1.0f);
-
-		GD.Print("Calculated target landing position:", _targetLandingPosition);
-		GD.Print("Earth's position:", earthNode.GlobalTransform.Origin);
-		GD.Print("Distance from Earth's surface:", _targetLandingPosition.DistanceTo(earthNode.GlobalTransform.Origin));
+		if (Input.IsActionPressed("YawLeft"))
+			RotateY(-rotationSpeed * (float)delta);
+		if (Input.IsActionPressed("YawRight"))
+			RotateY(rotationSpeed * (float)delta);
+		if (Input.IsActionPressed("PitchUp"))
+			RotateX(-rotationSpeed * (float)delta);
+		if (Input.IsActionPressed("PitchDown"))
+			RotateX(rotationSpeed * (float)delta);
+		if (Input.IsActionPressed("RollLeft"))
+			RotateZ(-rotationSpeed * (float)delta);
+		if (Input.IsActionPressed("RollRight"))
+			RotateZ(rotationSpeed * (float)delta);
 	}
 
-	public void ResetSpaceShip()
+	private void ApplyGravity(double delta)
 	{
-		GD.Print("Resetting SpaceShip...");
-		_controlEnabled = true;
-		_isLanding = false;
-		_isLandingCompleted = false;
+		totalGravity = Vector3.Zero;
 
-		GlobalPosition = Vector3.Zero;
-		LinearVelocity = Vector3.Zero;
-		AngularVelocity = Vector3.Zero;
+		// Iterate through all planets in the "planets" group
+		foreach (Node node in GetTree().GetNodesInGroup("planets"))
+		{
+			if (node is Planet planet)
+			{
+				// Add the gravitational acceleration from this planet
+				var gravity = planet.GetAccelerationAtPosition(GlobalPosition);
+				totalGravity += gravity;
+				GD.Print($"[Gravity Debug] Planet: {planet.Name}, Gravity: {gravity}");
+			}
+		}
 
-		GD.Print("SpaceShip reset completed.");
+		// Apply the total gravity to the spaceship's velocity
+		velocity += totalGravity * (float)delta;
+		GD.Print($"[Gravity Debug] Total Gravity: {totalGravity}");
+	}
+
+	private void ApplyDrag(double delta)
+	{
+		// Atmospheric drag simulation
+		if (earthNode != null && (GlobalPosition - earthNode.GlobalPosition).Length() < earthNode.surfaceRadius * 2)
+		{
+			velocity -= velocity * dragCoefficient * (float)delta;
+		}
+	}
+
+	private void UpdateCamera()
+	{
+		if (camera == null) return;
+
+		// Smoothly follow the spaceship
+		camera.GlobalPosition = GlobalPosition - GlobalTransform.Basis.Z * 10f + GlobalTransform.Basis.Y * 5f;
+		camera.LookAt(GlobalPosition, Vector3.Up);
+	}
+
+	private void UpdateHUD()
+	{
+		if (hudLabel != null)
+		{
+			hudLabel.Text = $"Fuel: {fuel:F2}\nGravity: {totalGravity}";
+		}
+	}
+
+	public override void _Process(double delta)
+	{
+		ProcessSpaceshipMovement(delta);
 	}
 }

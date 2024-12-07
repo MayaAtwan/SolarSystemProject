@@ -10,8 +10,9 @@ public partial class Planet : StaticBody3D // StaticBody3D for planets without l
 	[Export] private float _orbitalAngle;
 
 	[ExportCategory("Gravity")]
-	[Export] public float surfaceRadius = 50f; // Adjust for each planet's approximate radius
-	[Export] private float _surfaceGravity = 9.8f;
+	[Export] public float surfaceRadius = 6.371f; // Scaled radius in kilometers
+	[Export] private float _surfaceGravity = 0.0098f; // Scaled gravity
+
 
 	[ExportCategory("Rotation")]
 	[Export] private float _dayLength = 24f;
@@ -45,11 +46,23 @@ public partial class Planet : StaticBody3D // StaticBody3D for planets without l
 		GD.Print($"Initialized {Name}");
 	}
 
-	public Vector3 GetAccelerationAtPosition(Vector3 globalPosition)
+public Vector3 GetAccelerationAtPosition(Vector3 globalPosition)
+{
+	var distanceVector = globalPosition - GlobalPosition;
+
+	// Debug logs
+	GD.Print($"[Debug] {Name} - Position: {GlobalPosition}, Target: {globalPosition}");
+	GD.Print($"[Debug] {Name} - Distance Vector: {distanceVector}, Length: {distanceVector.Length()}");
+
+	if (distanceVector.LengthSquared() == 0)
 	{
-		var distanceVector = globalPosition - GlobalPosition;
-		return -distanceVector.Normalized() * StandardGravitationalParameter / distanceVector.LengthSquared();
+		return Vector3.Zero; // Avoid division by zero
 	}
+
+	var gravity = -distanceVector.Normalized() * StandardGravitationalParameter / distanceVector.LengthSquared();
+	GD.Print($"[Debug] {Name} - Calculated Gravity: {gravity}");
+	return gravity;
+}
 
 	public Vector3 GetOrbitalVelocity(Vector3 globalPosition)
 	{

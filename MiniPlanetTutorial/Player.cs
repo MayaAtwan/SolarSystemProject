@@ -26,24 +26,39 @@ public partial class Player : CharacterBody3D
 	public override void _Ready()
 	{
 		GD.Print("Player Ready");
+		CallDeferred(nameof(InitializePlayer)); 
+	}
 
-		var solarSystem = GetParent<SolarSystem>();
-		if (solarSystem != null)
+	private void InitializePlayer()
+	{
+		_spaceship = GetParent().GetNodeOrNull<SpaceShip>("SpaceShip");
+
+		if (_spaceship == null)
 		{
-			solarSystem.Connect("InitializationComplete", new Callable(this, nameof(OnSolarSystemInitialized)));
+			GD.PrintErr("Spaceship node not found. Check if 'SpaceShip' exists in the scene tree.");
 		}
 		else
 		{
-			GD.PrintErr("SolarSystem parent not found for Player.");
+			GD.Print("Spaceship found: " + _spaceship.Name);
 		}
-	}
 
-	private void OnSolarSystemInitialized()
-	{
-		GD.Print("SolarSystem initialization complete. Setting EarthNode in Player...");
-		var solarSystem = GetParent<SolarSystem>();
-		_earthNode = solarSystem?.EarthNode;
-		GD.Print("Earth node set in Player: ", _earthNode != null);
+		var solarSystem = GetParent() as SolarSystem;
+		if (solarSystem != null)
+		{
+			_earthNode = solarSystem.EarthNode;
+			if (_earthNode == null)
+			{
+				GD.PrintErr("Earth node not found in SolarSystem.");
+			}
+			else
+			{
+				GD.Print("Earth node found and assigned in Player.");
+			}
+		}
+		else
+		{
+			GD.PrintErr("SolarSystem parent not found. Ensure this script is a child of SolarSystem.");
+		}
 	}
 
 	public override void _Process(double delta)
@@ -75,7 +90,6 @@ public partial class Player : CharacterBody3D
 
 		Vector3 toEarthCenter = _earthNode.GlobalTransform.Origin - GlobalPosition;
 		Vector3 up = toEarthCenter.Normalized();
-
 		LookAtFromPosition(GlobalPosition, GlobalPosition + up, -GlobalTransform.Basis.Z);
 
 		var movement = Vector3.Zero;
@@ -90,18 +104,11 @@ public partial class Player : CharacterBody3D
 		_velocity = movement.Normalized() * _walkSpeed * (float)delta;
 		_velocity = _velocity - (_velocity.Dot(up)) * up;
 		GlobalPosition += _velocity;
-
 		float targetDistance = _earthNode.surfaceRadius + 1.0f;
-		float currentDistance = GlobalPosition.DistanceTo(_earthNode.GlobalTransform.Origin);
+		Vector3 stabilizedPosition = _earthNode.GlobalTransform.Origin + up * targetDistance;
+		GlobalPosition = GlobalPosition.Lerp(stabilizedPosition, 0.1f);
 
-		// Correct position only if deviation is significant
-		if (Math.Abs(currentDistance - targetDistance) > 0.1f)
-		{
-			Vector3 correctedPosition = _earthNode.GlobalTransform.Origin + up * targetDistance;
-			GlobalPosition = correctedPosition;
-		}
-
-		GD.Print("Player Position:", GlobalPosition, "Is on Earth's surface.");
+		//GD.Print("Player Position:", GlobalPosition, "Is on Earth's surface.");
 	}
 
 	private void ProcessSpaceMovement(double delta)
@@ -121,7 +128,7 @@ public partial class Player : CharacterBody3D
 		_velocity = movement.Normalized() * _spaceThrust * (float)delta;
 		GlobalPosition += _velocity;
 
-		GD.Print("Player Position in space:", GlobalPosition);
+		//GD.Print("Player Position in space:", GlobalPosition);
 	}
 
 	private void FollowSpaceship(double delta)
@@ -129,14 +136,14 @@ public partial class Player : CharacterBody3D
 		if (_spaceship == null) return;
 		GlobalPosition = _spaceship.GlobalPosition;
 		GlobalRotation = _spaceship.GlobalRotation;
-		GD.Print("Player following spaceship at position:", GlobalPosition);
+		//GD.Print("Player following spaceship at position:", GlobalPosition);
 	}
 
 	private void ExitSpaceship()
 	{
 		if (_spaceship == null)
 		{
-			GD.PrintErr("Cannot exit spaceship: _spaceship is null.");
+			//GD.PrintErr("Cannot exit spaceship: _spaceship is null.");
 			return;
 		}
 
@@ -144,12 +151,12 @@ public partial class Player : CharacterBody3D
 		_onEarth = true;
 
 		GlobalPosition = _spaceship.GlobalTransform.Origin + _spaceship.GlobalTransform.Basis.Z * 5f;
-		GD.Print("Player has exited the spaceship at position:", GlobalPosition);
+		//GD.Print("Player has exited the spaceship at position:", GlobalPosition);
 
 		_camera.Current = true;
 		Input.MouseMode = Input.MouseModeEnum.Captured;
 		_velocity = Vector3.Zero;
 
-		GD.Print("Player is now on Earth and can move freely.");
+		//GD.Print("Player is now on Earth and can move freely.");
 	}
 }
