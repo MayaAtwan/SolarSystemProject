@@ -1,14 +1,16 @@
-[gd_scene load_steps=24 format=3 uid="uid://bxjkkgh0jfjm"]
+[gd_scene load_steps=28 format=3 uid="uid://bxjkkgh0jfjm"]
 
 [ext_resource type="Script" path="res://SolarSystem.cs" id="1_biutj"]
 [ext_resource type="Script" path="res://Planet.cs" id="3_ithms"]
 [ext_resource type="Texture2D" uid="uid://blkyamearklx8" path="res://mars_texturemap.png" id="4_r6b8d"]
 [ext_resource type="Texture2D" uid="uid://cym3m5wj6d81n" path="res://moon_texturemap.png" id="4_rvnw2"]
 [ext_resource type="Texture2D" uid="uid://bsdne7saqa4y7" path="res://ESO_-_Milky_Way.jpg" id="5_rwgkv"]
+[ext_resource type="Texture2D" uid="uid://b65lt6d1pffxh" path="res://aesthetic-orange-background-handmade-experimental-art.jpg" id="6_30th8"]
 [ext_resource type="Script" path="res://managers/music_controller.gd" id="6_kisol"]
 [ext_resource type="PackedScene" uid="uid://dh7elcep04tt2" path="res://Player.tscn" id="6_wutj3"]
 [ext_resource type="Script" path="res://Earth1.cs" id="7_dhgyw"]
 [ext_resource type="PackedScene" uid="uid://bdxfo5j4g1ifv" path="res://SpaceShip.tscn" id="7_kpm6n"]
+[ext_resource type="Texture2D" uid="uid://coi54h6wwkn1p" path="res://8k_sun.jpg" id="7_pua8a"]
 [ext_resource type="PackedScene" uid="uid://xtb6lvxeqiq6" path="res://Earth1.tscn" id="8_fje7y"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_b15o2"]
@@ -44,7 +46,13 @@ radius = 20.0
 height = 40.0
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_btiol"]
-radius = 16.2832
+radius = 0.001
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0q04e"]
+albedo_texture = ExtResource("6_30th8")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0ym4x"]
+albedo_texture = ExtResource("7_pua8a")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6bpvc"]
 shading_mode = 0
@@ -63,12 +71,18 @@ radius = 50.0
 [node name="SolarSystem" type="Node3D"]
 script = ExtResource("1_biutj")
 
+[node name="Earth1" parent="." groups=["planets"] instance=ExtResource("8_fje7y")]
+script = ExtResource("7_dhgyw")
+orbitalSpeed = 2.0
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_ocf52")
 
-[node name="Moon" type="StaticBody3D" parent="." groups=["planets"]]
+[node name="Moon" type="StaticBody3D" parent="." node_paths=PackedStringArray("_orbitalParent") groups=["planets"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65.9029, 0, 0)
 script = ExtResource("3_ithms")
+_orbitalParent = NodePath(".")
+_orbitalRadius = 5.0
 surfaceRadius = 15.0
 _surfaceGravity = 6.0
 
@@ -81,9 +95,11 @@ mesh = SubResource("SphereMesh_8mcp7")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.9053, -8.90287, 49.9871)
 shape = SubResource("SphereShape3D_i78ja")
 
-[node name="Mars" type="StaticBody3D" parent="." groups=["planets"]]
+[node name="Mars" type="StaticBody3D" parent="." node_paths=PackedStringArray("_orbitalParent") groups=["planets"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -264.711)
 script = ExtResource("3_ithms")
+_orbitalParent = NodePath("../Sun")
+_orbitalRadius = 10.0
 surfaceRadius = 10.0
 _surfaceGravity = 30.0
 
@@ -93,10 +109,30 @@ mesh = SubResource("SphereMesh_53bip")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Mars"]
 shape = SubResource("SphereShape3D_btiol")
 
+[node name="Jupiter" type="StaticBody3D" parent="." node_paths=PackedStringArray("_orbitalParent") groups=["planets"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6163, 0, -461.991)
+script = ExtResource("3_ithms")
+_orbitalParent = NodePath("../Sun")
+_orbitalRadius = 15.0
+surfaceRadius = 10.0
+_surfaceGravity = 50.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Jupiter" groups=["planets"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.3737, 39.6422, -16.5354)
+material_override = SubResource("StandardMaterial3D_0q04e")
+mesh = SubResource("SphereMesh_53bip")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Jupiter"]
+transform = Transform3D(0.877682, 0.479243, 0, -0.479243, 0.877682, 0, 0, 0, 1, 204.691, -60.6749, -162.29)
+shape = SubResource("SphereShape3D_btiol")
+
 [node name="Sun" type="StaticBody3D" parent="." groups=["planets"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 170.046)
+script = ExtResource("3_ithms")
+_orbitalParent = NodePath("")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Sun"]
+material_override = SubResource("StandardMaterial3D_0ym4x")
 mesh = SubResource("SphereMesh_333bk")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="Sun"]
@@ -120,9 +156,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -155.516, -189.492, -468.915)
 [node name="SpaceShip" parent="." node_paths=PackedStringArray("hudLabel") instance=ExtResource("7_kpm6n")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -100)
 hudLabel = NodePath("../HUDLabel")
-
-[node name="Earth1" parent="." groups=["planets"] instance=ExtResource("8_fje7y")]
-script = ExtResource("7_dhgyw")
 
 [node name="HUDLabel" type="Label" parent="."]
 offset_left = 2.0

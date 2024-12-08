@@ -31,7 +31,6 @@ public partial class SpaceShip : RigidBody3D
 			GD.PrintErr("HUDLabel is not assigned. Assign a Label node in the inspector.");
 		}
 	}
-
 	private void InitializeSpaceship()
 	{
 		var solarSystem = GetParent() as SolarSystem;
@@ -120,16 +119,10 @@ public partial class SpaceShip : RigidBody3D
 		// Apply gravity and drag
 		ApplyGravity(delta);
 		ApplyDrag(delta);
-
-		// Update velocity and position
 		velocity += acceleration * (float)delta;
 		velocity = velocity.LimitLength(maxSpeed);
 		GlobalPosition += velocity * (float)delta;
-
-		// Update camera
 		UpdateCamera();
-
-		// Update HUD
 		UpdateHUD();
 
 		GD.Print($"Velocity: {velocity.Length()} m/s, Current Thrust: {currentThrust}, Fuel: {fuel:F2}");
@@ -158,27 +151,21 @@ public partial class SpaceShip : RigidBody3D
 	private void ApplyGravity(double delta)
 	{
 		totalGravity = Vector3.Zero;
-
-		// Iterate through all planets in the "planets" group
 		foreach (Node node in GetTree().GetNodesInGroup("planets"))
 		{
 			if (node is Planet planet)
 			{
-				// Add the gravitational acceleration from this planet
 				var gravity = planet.GetAccelerationAtPosition(GlobalPosition);
 				totalGravity += gravity;
 				GD.Print($"[Gravity Debug] Planet: {planet.Name}, Gravity: {gravity}");
 			}
 		}
-
-		// Apply the total gravity to the spaceship's velocity
 		velocity += totalGravity * (float)delta;
 		GD.Print($"[Gravity Debug] Total Gravity: {totalGravity}");
 	}
 
 	private void ApplyDrag(double delta)
 	{
-		// Atmospheric drag simulation
 		if (earthNode != null && (GlobalPosition - earthNode.GlobalPosition).Length() < earthNode.surfaceRadius * 2)
 		{
 			velocity -= velocity * dragCoefficient * (float)delta;
@@ -188,8 +175,6 @@ public partial class SpaceShip : RigidBody3D
 	private void UpdateCamera()
 	{
 		if (camera == null) return;
-
-		// Smoothly follow the spaceship
 		camera.GlobalPosition = GlobalPosition - GlobalTransform.Basis.Z * 10f + GlobalTransform.Basis.Y * 5f;
 		camera.LookAt(GlobalPosition, Vector3.Up);
 	}
