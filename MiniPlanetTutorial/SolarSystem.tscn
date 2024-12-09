@@ -73,7 +73,6 @@ script = ExtResource("1_biutj")
 
 [node name="Earth1" parent="." groups=["planets"] instance=ExtResource("8_fje7y")]
 script = ExtResource("7_dhgyw")
-orbitalSpeed = 2.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_ocf52")
@@ -129,7 +128,6 @@ shape = SubResource("SphereShape3D_btiol")
 [node name="Sun" type="StaticBody3D" parent="." groups=["planets"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 170.046)
 script = ExtResource("3_ithms")
-_orbitalParent = NodePath("")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Sun"]
 material_override = SubResource("StandardMaterial3D_0ym4x")

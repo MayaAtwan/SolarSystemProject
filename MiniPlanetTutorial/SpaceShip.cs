@@ -134,18 +134,23 @@ public partial class SpaceShip : RigidBody3D
 
 	private void ProcessRotation(double delta)
 	{
+		// Adjust yaw rotation around the spaceship's local up axis
 		if (Input.IsActionPressed("YawLeft"))
-			RotateY(-rotationSpeed * (float)delta);
+			RotateObjectLocal(Vector3.Up, rotationSpeed * (float)delta);
 		if (Input.IsActionPressed("YawRight"))
-			RotateY(rotationSpeed * (float)delta);
+			RotateObjectLocal(Vector3.Up, -rotationSpeed * (float)delta);
+
+		// Adjust pitch rotation around the spaceship's local right axis
 		if (Input.IsActionPressed("PitchUp"))
-			RotateX(-rotationSpeed * (float)delta);
+			RotateObjectLocal(GlobalTransform.Basis.X, -rotationSpeed * (float)delta);
 		if (Input.IsActionPressed("PitchDown"))
-			RotateX(rotationSpeed * (float)delta);
+			RotateObjectLocal(GlobalTransform.Basis.X, rotationSpeed * (float)delta);
+
+		// Adjust roll rotation around the spaceship's local forward axis
 		if (Input.IsActionPressed("RollLeft"))
-			RotateZ(-rotationSpeed * (float)delta);
+			RotateObjectLocal(GlobalTransform.Basis.Z, rotationSpeed * (float)delta);
 		if (Input.IsActionPressed("RollRight"))
-			RotateZ(rotationSpeed * (float)delta);
+			RotateObjectLocal(GlobalTransform.Basis.Z, -rotationSpeed * (float)delta);
 	}
 
 	private void ApplyGravity(double delta)
@@ -178,14 +183,19 @@ public partial class SpaceShip : RigidBody3D
 		camera.GlobalPosition = GlobalPosition - GlobalTransform.Basis.Z * 10f + GlobalTransform.Basis.Y * 5f;
 		camera.LookAt(GlobalPosition, Vector3.Up);
 	}
-
-	private void UpdateHUD()
+private void UpdateHUD()
+{
+	if (hudLabel != null)
 	{
-		if (hudLabel != null)
-		{
-			hudLabel.Text = $"Fuel: {fuel:F2}\nGravity: {totalGravity}";
-		}
+		hudLabel.Text = $"Fuel: {fuel:F2}\n" +
+						$"Gravity: {totalGravity}\n" +
+						$"Rotation:\n" +
+						$"  Yaw: {GlobalTransform.Basis.Y.Normalized()}\n" +
+						$"  Pitch: {GlobalTransform.Basis.X.Normalized()}\n" +
+						$"  Roll: {GlobalTransform.Basis.Z.Normalized()}";
 	}
+}
+
 
 	public override void _Process(double delta)
 	{

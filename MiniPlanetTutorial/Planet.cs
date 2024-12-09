@@ -44,6 +44,7 @@ public partial class Planet : StaticBody3D // StaticBody3D for planets without l
 				_orbitalParent.GetOrbitalVelocity(GlobalPosition);
 		}
 
+		// right now this is not needed... for the moon..
 		// If tidally locked, the day length matches the orbital period.
 		if (_tidallyLocked)
 		{
