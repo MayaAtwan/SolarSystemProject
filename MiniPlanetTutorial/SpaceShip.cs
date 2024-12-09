@@ -188,13 +188,10 @@ private void UpdateHUD()
 	if (hudLabel != null)
 	{
 		hudLabel.Text = $"Fuel: {fuel:F2}\n" +
-						$"Gravity: {totalGravity}\n" +
-						$"Rotation:\n" +
-						$"  Yaw: {GlobalTransform.Basis.Y.Normalized()}\n" +
-						$"  Pitch: {GlobalTransform.Basis.X.Normalized()}\n" +
-						$"  Roll: {GlobalTransform.Basis.Z.Normalized()}";
+						$"Gravity: {totalGravity}\n";
 	}
 }
+
 
 
 	public override void _Process(double delta)
