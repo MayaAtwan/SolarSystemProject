@@ -4,8 +4,7 @@
 This project simulates a spaceship navigating a solar system with gravitational influences from multiple planets. 
 The spaceship can rotate along its local axes, apply thrust, and respond to environmental forces like gravity and drag.
 
-!(res://readme.png)
-
+<img src="res://readme.png"></img>
  
 ## Acknowledgments
 - Special thanks to Professor Roi Poranne for guidance and suggestions on improving the rotation mechanics and gravity simulation.
