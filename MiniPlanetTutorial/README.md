@@ -1,7 +1,7 @@
 # Spaceship Simulation 🚀🌌🛰
 <img src="readme.png" alt="Spaceship Simulation Project Overview" width="900" height="200">
 
-This project is a spaceship simulation developed in Godot Engine. It features navigation and interaction within a dynamic solar system with multiple planets, each exerting gravitational influences. The spaceship supports local-axis rotation, thrust-based movement, and environmental forces like gravity and drag, with real-time HUD feedback. Additionally, players can exit the spaceship to explore planetary surfaces and regain control when returning to the spaceship.
+This project is a spaceship simulation developed in Godot Engine. It features navigation and interaction within a dynamic solar system with multiple planets, each exerting gravitational influences. The spaceship supports local-axis rotation, thrust-based movement, and environmental forces like gravity and drag, with real-time HUD feedback. Additionally, player can exit the spaceship to explore planetary surfaces.
 
 ---
 
@@ -19,9 +19,7 @@ Planets exert realistic gravitational forces based on distance and mass, affecti
 ### Player Transition 🚶‍♂️🚀
 - Players start inside the spaceship.
 - Pressing **Enter** allows the player to exit the spaceship, dropping onto the planetary surface for exploration.
-- Player controls are activated upon exiting the spaceship, allowing full movement on the planet.
-- Returning to the spaceship reassigns controls for spaceship navigation.
-
+- Player controls are activated upon exiting the spaceship, allowing full movement on the space.
 ---
 
 ## 🕹️ How to Use
@@ -55,8 +53,6 @@ Planets exert realistic gravitational forces based on distance and mass, affecti
 2. **Exiting the Spaceship**:
    - Press **Enter** to exit the spaceship when near a planet.
    - The player will drop onto the planet and gain full movement control.
-
-
 
 ## Physics Details
 
