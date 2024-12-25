@@ -10,8 +10,8 @@ This project is a spaceship simulation developed in Godot Engine. It features na
 - Simulates gravitational pull from multiple planets and drag effects near planetary atmospheres.
 
 ### Spaceship Control 🛰️
-- **Rotation**: Rotate the spaceship along yaw, pitch, and roll axes relative to its local frame. 🔄
-- **Thrust**: Accelerate forward or backward using thrust mechanics that deplete the spaceship’s fuel. ⛽
+- **Rotation**: Rotate the spaceship along yaw, pitch, and roll axes relative to its local frame.
+- **Thrust**: Accelerate forward or backward using thrust mechanics that deplete the spaceship’s fuel.
 
 
 ### Gravitational Simulation 🌠
