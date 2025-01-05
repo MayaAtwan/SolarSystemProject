@@ -54,6 +54,9 @@ Planets exert realistic gravitational forces based on distance and mass, affecti
    - Press **Enter** to exit the spaceship when near a planet.
    - The player will drop onto the planet and gain full movement control.
 
+
+### Project Demo
+![Project Demo](gif/gif.gif)
 ## Physics Details
 
 ### Gravity Formula 🌌
@@ -119,4 +122,3 @@ Ensure you have the following installed:
 #### Assets Used:
 - [Sketchfab Models](https://sketchfab.com/tags/godot)
 - [Pixabay Background Music](https://pixabay.com/sound-effects/search/space/)
-![Project Demo](gif/gif.gif)
