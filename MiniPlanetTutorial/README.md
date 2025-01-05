@@ -37,6 +37,8 @@ Planets exert realistic gravitational forces based on distance and mass, affecti
 | **Thrust Backward**   | `S`         |
 | **Exit Spaceship**    | `Space`     |
 
+![Project Demo](gif/gif.gif)
+
 ### Player Controls (Outside Spaceship)
 | Action               | Key         |
 |-----------------------|-------------|
@@ -54,9 +56,6 @@ Planets exert realistic gravitational forces based on distance and mass, affecti
    - Press **Enter** to exit the spaceship when near a planet.
    - The player will drop onto the planet and gain full movement control.
 
-
-### Project Demo
-![Project Demo](gif/gif.gif)
 ## Physics Details
 
 ### Gravity Formula 🌌
