@@ -48,8 +48,11 @@ Planets exert realistic gravitational forces based on distance and mass, affecti
 | **Move Right**        | `D`         |
 | **Jump**              | `Space`     |
 
-after pressing space and now the control gos to the player:
+After pressing the spacebar, control shifts to the player character.
+Starting near the Moon, the player exits the spaceship and is propelled outward into the solar system.
+As we move, we pass by Earth and continue drifting further into space.
 ![Project Demo](gif/player.gif)
+
 ### Gameplay Instructions
 1. **Spaceship Navigation**:
    - Use the spaceship controls to navigate the solar system.
