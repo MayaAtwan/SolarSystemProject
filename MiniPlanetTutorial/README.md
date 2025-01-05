@@ -65,36 +65,36 @@ As we move, we pass by Earth and continue drifting further into space.
 
 ### Gravity Formula 🌌
 The gravitational force exerted on the spaceship is calculated as:
-$$
-F_g = \frac{-GM}{r^2} \cdot \text{Direction}
-$$
+
+F_g = -GM / r^2 ⋅ Direction
+
 Where:
-- \( G \) is the gravitational constant.
-- \( M \) is the mass of the planet.
-- \( r \) is the distance from the spaceship to the planet.
-- \( \text{Direction} \) is a normalized vector pointing towards the center of the planet.
+- G  is the gravitational constant.
+- M  is the mass of the planet.
+- r  is the distance from the spaceship to the planet.
+- Direction is a normalized vector pointing towards the center of the planet.
 
 ---
 
 ### Thrust Formula 🚀
 The thrust applied to the spaceship is given by:
-$$
-F_t = \text{Thrust Direction} \cdot \text{Base Thrust}
-$$
+
+F_t = Thrust Direction × Base Thrust
+
 Where:
-- \( \text{Thrust Direction} \) is the direction in which the spaceship moves.
-- \( \text{Base Thrust} \) is the constant thrust value.
+- Thrust Direction is the direction in which the spaceship moves.
+- Base Thrust is the constant thrust value.
 
 ---
 
 ### Drag Formula 🌠
 The drag force experienced by the spaceship near a planetary atmosphere is:
-$$
-F_d = -v \cdot C_d
-$$
+
+F_d = -v × C_d
+
 Where:
-- \( v \) is the velocity of the spaceship.
-- \( C_d \) is the drag coefficient, which depends on the atmospheric density.
+- v is the velocity of the spaceship.
+- C_d is the drag coefficient, which depends on the atmospheric density.
 
 ---
 
