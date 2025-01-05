@@ -48,6 +48,8 @@ Planets exert realistic gravitational forces based on distance and mass, affecti
 | **Move Right**        | `D`         |
 | **Jump**              | `Space`     |
 
+after pressing space and now the control gos to the player:
+![Project Demo](gif/player.gif)
 ### Gameplay Instructions
 1. **Spaceship Navigation**:
    - Use the spaceship controls to navigate the solar system.
