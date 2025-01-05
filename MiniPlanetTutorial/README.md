@@ -119,3 +119,4 @@ Ensure you have the following installed:
 #### Assets Used:
 - [Sketchfab Models](https://sketchfab.com/tags/godot)
 - [Pixabay Background Music](https://pixabay.com/sound-effects/search/space/)
+![Project Demo](gif/project.mp4)
