@@ -30,6 +30,12 @@ project/assembly_name="MiniPlanetTutorial"
 
 naming/scene_name_casing=1
 
+[file_customization]
+
+folder_colors={
+"res://gif/": "red"
+}
+
 [input]
 
 Rotate={

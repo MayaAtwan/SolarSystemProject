@@ -152,7 +152,7 @@ script = ExtResource("6_kisol")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -155.516, -189.492, -468.915)
 
 [node name="SpaceShip" parent="." node_paths=PackedStringArray("hudLabel") instance=ExtResource("7_kpm6n")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -100)
+transform = Transform3D(0.951798, -0.306725, 0, 0.306725, 0.951798, 0, 0, 0, 1, 174.388, 83.2442, -15.8112)
 hudLabel = NodePath("../HUDLabel")
 
 [node name="HUDLabel" type="Label" parent="."]
